@@ -21,7 +21,7 @@
         //  SpringGreen,
         //  #RRGGBB (* Turboユーザーのみ),
         //  DoNotChange (* 色を変えない)
-        "nameColor": "DoNotChange",
+        "nameColor": "Red",
     },
     //
     // イベントに対する応答に関する設定たち
