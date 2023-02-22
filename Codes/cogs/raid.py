@@ -38,12 +38,12 @@ class TERRaidCog(TERBaseCog):
             self.replace_double_curly_brackets(replacements)
         )
         for cs in cms[0]:
-            #
-            # shoutout の場合、レイド元のユーザー(チャンネル)IDを取得して利用
+            # shoutout の場合
             if cs.command[0] == 'shoutout':
+                # レイド元のユーザー(チャンネル)IDを取得して利用
                 shoutout_broadcaster_user_id = str(tags.get('user-id', 0))
                 print(
-                    f'    Shoutout broadcaster user id = ' +
+                    f'    Shoutout broadcaster user ID = ' +
                     f'{shoutout_broadcaster_user_id}'
                 )
                 if shoutout_broadcaster_user_id == '0':

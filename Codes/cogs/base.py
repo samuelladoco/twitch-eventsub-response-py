@@ -4,8 +4,9 @@ from __future__ import annotations
 import asyncio
 from typing import Any, NamedTuple
 #
-from twitchio import PartialUser
+from twitchio import PartialUser, User
 from twitchio.client import Channel
+from twitchio.errors import HTTPException
 from twitchio.ext import commands
 # -----------------------------------------------------------------------------
 
@@ -80,7 +81,7 @@ class TERBaseCog(commands.Cog):
         print(f'    Commands or messages')
         for index, cm in enumerate(cms):
             print(
-                f'      No. {index + 1} (after {cm.sleep_sec:>2} s.) = ',
+                f'      No. {index + 1:>2} (after {cm.sleep_sec:>2} s.) = ',
                 end=''
             )
             #
@@ -93,9 +94,18 @@ class TERBaseCog(commands.Cog):
                 #
                 # /shoutout メッセージ送信先チャンネルにレイドをしたユーザー
                 if cm.command[0] == 'shoutout':
-                    await self.__pu.shoutout(
-                        self.__token, int(cm.command[1]), self.__pu.id
-                    )
+                    channel_broadcaster_user: User = await _channel.user()
+                    try:
+                        await self.__pu._http.post_shoutout(
+                            self.__token,
+                            str(channel_broadcaster_user.id),
+                            str(self.__pu.id),
+                            cm.command[1]
+                        )
+                    except HTTPException as e:
+                        print(f'failed.')
+                        print(f'        {e}')
+                        continue
                 #
                 # ToDo: ★ 別のコマンドにも対応する場合は、ここに実装する
                 # elif cm.command[0] == '???':
