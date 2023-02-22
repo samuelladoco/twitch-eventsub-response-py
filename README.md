@@ -214,7 +214,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、コンソール（黒い画面）に以下のようなメッセージが表示されます。
 
 ```
---- Twitch EventSub Response Bot (v0.1) ---
+--- Twitch EventSub Response Bot (v0.2) ---
 
 [Preprocess]
   JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-vX.Y\config.json5
@@ -289,7 +289,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 - ボットとして運用するユーザーとして、配信で使っているユーザー以外も指定可能に
 - 1分間の間に複数のレイドを受けた場合、ボットがエラー終了しないように
 
-2023/02/22：v0.1（最初のリリース）
+2023/02/21：v0.1
 
 
 
