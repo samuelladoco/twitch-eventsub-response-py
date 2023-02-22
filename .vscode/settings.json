@@ -3,4 +3,5 @@
     "files.trimTrailingWhitespace": true,
     "python.analysis.extraPaths": ["Codes"],
     "python.analysis.typeCheckingMode": "strict"
+    // "python.analysis.typeCheckingMode": "basic"
 }
