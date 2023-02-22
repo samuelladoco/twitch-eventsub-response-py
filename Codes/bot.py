@@ -29,7 +29,7 @@ class TERBot(commands.Bot):
             f"    Test command = {self.__prefix}test"
         )
         print(
-            f"    Message channel = " +
+            f"    Message channel user name = " +
             f"{str(self.__j['messageChannel']['userName'])}"
         )
         super().__init__(
