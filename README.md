@@ -1,4 +1,4 @@
-最終更新日：2023-02-21
+最終更新日：2023-02-22
 
 # Twitch EventSub Response Bot (twitch-eventsub-response-py)
 [Twitch](https://www.twitch.tv/) で配信中にレイドを受けたときに、それに応答して自動で「 `/shoutout レイド元のユーザー名` 」Twitch公式チャットコマンドの実行や、チャット欄に指定したメッセージを表示してくれる、ボットアプリです。
@@ -55,10 +55,8 @@ Twitch配信のチャット欄に指定したメッセージを自動で表示�
 - 配信で使っているユーザーをボットとしても運用する場合：権限を付与する必要はなし
     - すでにモデレーター以上の権限を持っているため
 
-- ~~ボットとして運用するユーザーを別に用意する場合：そのユーザーにモデレーターの権限を与えること~~
-    - ~~**セキュリティーの観点から、こちらをお勧め**~~
-
-**現在のところ、本ボットが `/shoutout` 公式コマンドを実行するためには、ボットとして運用するユーザー＝配信で使っているユーザーとしなければいけません。**
+- ボットとして運用するユーザーを別に用意する場合：そのユーザーにモデレーターの権限を与えること
+    - **セキュリティーの観点から、こちらをお勧め**
 
 すでに [チャット翻訳ちゃん](http://www.sayonari.com/trans_asr/trans.html) などでユーザーをボットとして使用している場合は、同じユーザーを本ボットに使用しても、お互い正常に動作するようです。
 
@@ -81,12 +79,10 @@ Twitch配信のチャット欄に指定したメッセージを自動で表示�
 「Twitch Chat OAuth Password Generator（Twitch Chat OAuth Token Generator）」は、 [チャット翻訳ちゃん](http://www.sayonari.com/trans_asr/trans.html) の公式ページにて、トークン文字列を取得する方法として紹介されているウェブサービスです。ただし、本ボットは [チャット翻訳ちゃん](http://www.sayonari.com/trans_asr/trans.html) とは違う権限を要求するので、同じ方法ではなく、以下の手順でトークン文字列を取得してください。
 
 まず、ブラウザーを開いて、**ボットとして運用するユーザーでTwitchにログインした状態にしてください** 。
-- ~~ボットとして運用するユーザーを別に用意する場合は、配信で使っているユーザーでいったんログアウトしてボットとして運用するユーザーでログインし直すか、ブラウザーのシークレットモードなどと呼ばれる機能を使ってボットとして運用するユーザーでログインしてください~~
-    - ~~Chrome：「シークレット ウィンドウ」~~
-    - ~~Edge：「InPrivate ウィンドウ」~~
-    - ~~Firefox：「新しいプライベートウィンドウ」~~
-
-**現在のところ、本ボットが `/shoutout` 公式コマンドを実行するためには、ボットとして運用するユーザー＝配信で使っているユーザーとしなければいけません。**
+- ボットとして運用するユーザーを別に用意する場合は、配信で使っているユーザーでいったんログアウトしてボットとして運用するユーザーでログインし直すか、ブラウザーのシークレットモードなどと呼ばれる機能を使ってボットとして運用するユーザーでログインしてください
+    - Chrome：「シークレット ウィンドウ」
+    - Edge：「InPrivate ウィンドウ」
+    - Firefox：「新しいプライベートウィンドウ」
 
 そして、以下のURLをコピーし、ブラウザーにペーストして、URLにアクセスしてください。
 
@@ -133,7 +129,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
         //  SpringGreen,
         //  #RRGGBB (* Turboユーザーのみ),
         //  DoNotChange (* 色を変えない)
-        "nameColor": "DoNotChange",
+        "nameColor": "Red",
     },
     //
     // イベントに対する応答に関する設定たち
@@ -193,8 +189,6 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 本ボットと [チャット翻訳ちゃん](http://www.sayonari.com/trans_asr/trans.html) を同時に使用する場合は、チャット翻訳ちゃん側で名前の色を指定し、こちらは `"nameColor": "DoNotChange"` のままにしてください。
 
-**現在のところ、本ボットが `/shoutout` 公式コマンドを実行するためには、ボットとして運用するユーザー＝配信で使っているユーザーとしなければいけません。ボットとして運用するユーザー＝配信で使っているユーザーとする場合は、 `"nameColor": "DoNotChange"` のままにしてください。**
-
 `config.json5` の文字コードは、ダウンロード時点では `UTF-8（BOMなし）` ですが、上書き保存した際にほかの文字コードに変わってしまっても、問題なく動作するように作ったつもりです。
 
 
@@ -230,12 +224,13 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
   Initializing bot ...
     Bot token length = 99
     Test command = <ter>_test
-    Message channel = YourChannelName
+    Message channel user name = YourChannelName
   done.
 
 [Running of Bot]
   Joining channel ...
-    Channel name = YourChannelName
+    Channel name = yourchannelname
+    Bot name color = Red
   done.
 
   Making bot ready ...
@@ -257,7 +252,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 ```
   Testing bot ...
-    Channel name = YourChannelName
+    Channel name = yourchannelname
     Bot user ID = 888888888
     Bot user name = yourbotusername
     Cogs = [TERRaidCog]
@@ -286,6 +281,15 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 - [Nightbot](https://nightbot.tv/) を設定せずに本ボット単体で、 `!raided` ユーザーコマンドで表示したいメッセージを設定
 
 また、セキュリティーの懸念が小さいような、ユーザーアクセストークン文字列を取得するアプリを、本ボットに付属させることができればよいと考えています。もしご協力いただける方がいればたいへんありがたいです。
+
+
+
+## バージョン履歴
+2023/02/22：v0.2
+- ボットとして運用するユーザーとして、配信で使っているユーザー以外も指定可能に
+- 1分間の間に複数のレイドを受けた場合、ボットがエラー終了しないように
+
+2023/02/22：v0.1（最初のリリース）
 
 
 
