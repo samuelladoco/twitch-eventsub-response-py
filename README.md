@@ -1,4 +1,4 @@
-最終更新日：2023-02-22
+最終更新日：2023-02-24 (v0.3)
 
 # Twitch EventSub Response Bot (twitch-eventsub-response-py)
 [Twitch](https://www.twitch.tv/) で配信中にレイドを受けたときに、それに応答して自動で「 `/shoutout レイド元のユーザー名` 」Twitch公式チャットコマンドの実行や、チャット欄に指定したメッセージを表示してくれる、ボットアプリです。
@@ -26,7 +26,7 @@ Twitch配信のチャット欄に指定したメッセージを自動で表示�
 | 応答タイミング | コマンド | 実行内容 |
 | :--- | :-- | :-- |
 | レイドを受けたとき | `/shoutout レイド元のユーザー名` | レイド元のユーザーのチャンネルを応援し、フォローボタン付きでチャット内で紹介する |
-| レイドを受けたとき | `（任意のメッセージ）` | 「 `（任意のメッセージ）` 」 を表示させる（これを利用して、ユーザーコマンドも実行可能） |
+| レイドを受けたとき | `（任意のメッセージ）` | 「 `（任意のメッセージ）` 」 を表示させる（ これを利用して、 **ユーザーコマンドも実行可能** ） |
 
 
 
@@ -106,7 +106,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 まず、 `config.json5` ファイルを、テキストエディタ（メモ帳など）で開いてください。 `config.json5` は、ダウンロード時点では以下の内容になっています。
 
 ```
-// Twitch EventSub Response Bot - Config
+// Twitch EventSub Response Bot - Config (v0.3--)
 {
     // メッセージ送信先となるチャンネルに関する設定たち
     "messageChannel": {
@@ -121,7 +121,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
         //  (* 使う機能が要求する権限をトークンが持っていること)
         "oAuthAccessToken": "9y0urb0tuser0authacceesst0ken9",
         //
-        // 名前の色たち:
+        // チャンネルで表示されるボットの名前の色:
         //  (* トークンが "user:manage:chat_color" 権限を持っていること)
         //  Red, Blue, Green, Firebrick, Coral, YellowGreen, OrangeRed,
         //  SeaGreen, GoldenRod, Chocolate, CadetBlue,
@@ -132,37 +132,37 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
         "nameColor": "Red",
     },
     //
-    // イベントに対する応答に関する設定たち
-    //  コマンドやメッセージの中で置換される文字列たち:
-    //      {{raidBroadcasterUserName}} -> レイド元のユーザー名(チャンネル名)
-    //      (* 置換される文字列は、要望があれば追加対応するかもしれません)
+    // イベントたちに対する応答たちに関する設定
     "responses": {
-        // イベントたち
-        //  レイド
-        "raid": {
-            // [
-            //  順序, 送信前の待機時間(秒),
-            //  コマンド名, (* 必要あれば追加情報1, 追加情報2, ...)
-            // ]の組たち
-            "commands": [
-                // (* ボットとなるユーザーが モデレーター 以上であること)
-                // (* トークンが "moderator:manage:shoutouts" 権限を持っていること)
-                [2, 10, "shoutout", ],
-                //
-                // (* ほかのコマンドは、要望があれば追加対応するかもしれません)
-            ],
+        // レイド
+        "/raid": [
+            // コマンドやメッセージの中で置換される文字列:
+            //  {{raidBroadcasterUserName}} -> レイド元のユーザー名(チャンネル名)
             //
-            // [順序, 送信前の待機時間(秒), メッセージ]の組たち
-            //  (* トークンが "chat:edit" 権限を持っていること)
-            "messages": [
-                [1,  3, "!raided {{raidBroadcasterUserName}}"],
-                //
-                //  (* ほかのメッセージを追加可能です)
-            ],
-        },
+            // [
+            //  送信前の待機時間(秒),
+            //  公式コマンド・メッセージ (* ユーザーコマンドを含む),
+            //  (* 必要あれば追加情報1, 追加情報2, ...,)
+            // ]の組たち
+            //  (* 上から順に1つずつ実行)
+            //
+            // メッセージ (* ユーザーコマンドを含む) の例
+            [ 3, "!raided {{raidBroadcasterUserName}}", ],
+            //
+            // コマンドの例
+            //  /shoutout
+            //      (* ボットとなるユーザーが モデレーター 以上であること)
+            //      (* トークンが "moderator:manage:shoutouts" 権限を持っていること)
+            [10, "/shoutout", ],
+            //
+            // (* ほかのコマンドは、要望があれば追加対応するかもしれません)
+        ],
         //
         //  (* ほかのイベントは、要望があれば追加対応するかもしれません)
     },
+    //
+    // (* ここは変更しないでください)
+    "ver_no": "Undefined",
 }
 ```
 
@@ -172,22 +172,20 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 | :--- | :-- | :-- |
 | `"userName": "YourChannelName"` | `YourChannelName` | 配信を行うユーザー名（チャンネル名） |
 | `"oAuthAccessToken": "9y0urb0tuser0authacceesst0ken9"` | `9y0urb0tuser0authacceesst0ken9` | 上記の方法で取得したトークン文字列 |
-| `"nameColor": "DoNotChange"` | `DoNotChange` | 直上コメントの「名前の色たち」で候補として挙げられている色を表す文字列たちから1つ |
-| `[2, 10, "shoutout", ],` | `2`                      | レイドを受けて実行される全コマンド・メッセージの中で、 `/shoutout` が実行されてほしい順番 |
-|                          | `10`                     | 順序が1つ前のコマンド・メッセージが実行されてから `/shoutout` が実行されるまで待機してほしい時間（秒） |
-|                          | `[2, 10, "shoutout", ],` | `/shoutout` 公式コマンドを実行したくない場合は行ごと削除 |
-| `[1,  3, "!raided {{raidBroadcasterUserName}}"],` | `1`                                   | 上記と同様の順番 |
-|                                                   | `3`                                   | 上記と同様の時間 |
-|                                                   | `!raided {{raidBroadcasterUserName}}` | 表示したいメッセージ（これを利用して、ユーザーコマンドも実行可能） |
-|                                                   | `[1,  3, "!raided {{raidBroadcasterUserName}}"],` | このメッセージを表示したくない場合は行ごと削除 |
+| `"nameColor": "Red"` | `Red` | 直上コメントの「名前の色たち」で候補として挙げられている色を表す文字列たちから1つ |
+| `[ 3, "!raided {{raidBroadcasterUserName}}", ],` | `3`                                   | 順序が1つ前のコマンド・メッセージが実行されてから、表示したいメッセージが実行されるまで待機する時間（秒）（最初に実行されるコマンド・メッセージの場合は、レイドを受けてからの時間） |
+|                                                   | `!raided {{raidBroadcasterUserName}}` | 表示したいメッセージ（これを利用して、 **ユーザーコマンドも実行可能** ） |
+|                                                   | `[ 3, "!raided {{raidBroadcasterUserName}}", ],` | このメッセージを表示したくない場合は、行ごと削除 |
+| `[10, "/shoutout", ],` | `10`                     | 順序が1つ前のコマンド・メッセージが実行されてから、 `/shoutout` 公式コマンドが実行されるまで待機する時間（秒） |
+|                          | `[10, "/shoutout", ],` | `/shoutout` 公式コマンドを実行したくない場合は、行ごと削除 |
 
-例として `[2, 10, "shoutout", ],` および `[1,  3, "!raided {{raidBroadcasterUserName}}"],` の行を全く変更しない場合、レイドを受けたときに本ボットは以下の動作をします。
+例として `[ 3, "!raided {{raidBroadcasterUserName}}", ],` および `[10, "/shoutout", ],` の行を全く変更しない場合、レイドを受けたときに本ボットは以下の動作をします。
 - まず、3秒待機したのち、チャット欄に「 `!raided レイド元のユーザー名(チャンネル名)` 」というメッセージを表示
     - もし [Twitchでレイドされたときに自動でお礼と宣伝をする方法](https://naosan-rta.hatenablog.com/entry/2022/02/27/113227) のとおりに [Nightbot](https://nightbot.tv/) に `!raided` ユーザーコマンド表示したいメッセージを設定していた場合、チャット欄に「 `【表示名】さんレイドありがとうございます！【表示名】さん(【ゲーム名】をプレイ中)のチャンネルはコチラ→【URL】` 」と表示
         - 本ボットと [Nightbot](https://nightbot.tv/) を設定すれば、 **[Streamlabs](https://streamlabs.com/) ないし [StreamElements](https://streamelements.com/) といったサービス側の設定は不要**
 - 次に、10秒待機したのち、 `/shoutout レイド元のユーザー名` 公式コマンドを実行
 
-本ボットと [チャット翻訳ちゃん](http://www.sayonari.com/trans_asr/trans.html) を同時に使用する場合は、チャット翻訳ちゃん側で名前の色を指定し、こちらは `"nameColor": "DoNotChange"` のままにしてください。
+本ボットと [チャット翻訳ちゃん](http://www.sayonari.com/trans_asr/trans.html) を同時に使用する場合は、 [チャット翻訳ちゃん](http://www.sayonari.com/trans_asr/trans.html) 側で名前の色を指定し、本ボット側は `"nameColor": "DoNotChange"` としてください。
 
 `config.json5` の文字コードは、ダウンロード時点では `UTF-8（BOMなし）` ですが、上書き保存した際にほかの文字コードに変わってしまっても、問題なく動作するように作ったつもりです。
 
@@ -214,32 +212,30 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、コンソール（黒い画面）に以下のようなメッセージが表示されます。
 
 ```
---- Twitch EventSub Response Bot (v0.2) ---
-
+--- Twitch EventSub Response Bot (v0.3) ---
 [Preprocess]
   JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-vX.Y\config.json5
     parsing this file ... done.
 
 [Activation of Bot]
   Initializing bot ...
-    Bot token length = 99
-    Test command = <ter>_test
     Message channel user name = YourChannelName
+    Bot token length = 99
   done.
 
 [Running of Bot]
   Joining channel ...
     Channel name = yourchannelname
-    Bot name color = Red
+    Setting bot name color = Red ... done.
   done.
 
   Making bot ready ...
     Bot user ID = 888888888
     Bot user name = yourbotusername
-  done.
-
-  Registering Cogs ...
-    Cogs = [TERRaidCog]
+    Bot commands
+      <ter>_test
+    Bot cogs
+      TERRaidCog
   done.
 
 ```
@@ -251,12 +247,16 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、コンソール（黒い画面）に以下のようなメッセージが表示されます。
 
 ```
-  Testing bot ...
+  Testing bot (v0.3) ...
     Channel name = yourchannelname
     Bot user ID = 888888888
     Bot user name = yourbotusername
-    Cogs = [TERRaidCog]
+    Bot cogs
+      TERRaidCog
+    Bot commands
+      <ter>_test
   done.
+
 ```
 
 この2つが表示されれば、本ボットは動作中です。
@@ -277,14 +277,18 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 ## 今後の展開
 要望に応じて、本ボットで対応する公式コマンドやメッセージを増やしていければと思います。対応コマンドやメッセージが増えれば、例えば以下のようなことができるようになると予想します。
 - 一定額以上のビッツをくれたユーザーに対して自動でVIP権限を付与
+    - 本ボットのアプリ名には「 [EventSub](https://dev.twitch.tv/docs/eventsub/) 」とついていますが、開発の対象をそれ以外にも広げていきたみ
 - アンフォローしたユーザーを自動でバン（笑）
-- [Nightbot](https://nightbot.tv/) を設定せずに本ボット単体で、 `!raided` ユーザーコマンドで表示したいメッセージを設定
 
-また、セキュリティーの懸念が小さいような、ユーザーアクセストークン文字列を取得するアプリを、本ボットに付属させることができればよいと考えています。もしご協力いただける方がいればたいへんありがたいです。
 
 
 
 ## バージョン履歴
+2023/02/24：v0.3
+- `config.json5` の書式変更
+    - `commands` と `messages` のキーと実行順の指定を廃止し、上から順に実行されるように簡素化
+    - `raid` を `/raid` に、 `shoutout` を `/shoutout` にそれぞれ変更
+
 2023/02/22：v0.2
 - ボットとして運用するユーザーとして、配信で使っているユーザー以外も指定可能に
 - 1分間の間に複数のレイドを受けた場合、ボットがエラー終了しないように
@@ -294,6 +298,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 ## 参考資料
+- [Twitch Developer Documentation](https://dev.twitch.tv/docs/)
 - TwitchIO（[documentation](https://twitchio.dev/en/latest/)、[GitHub](https://github.com/TwitchIO/TwitchIO)）
 - [TwitchIOの実装例](https://github.com/Charahiro-tan/TwitchIO_example_ja)
 - [TwitchIOでTwitchのBotを作る](https://qiita.com/maguro869/items/57b866779b665058cfe8)
