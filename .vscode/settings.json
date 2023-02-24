@@ -2,6 +2,6 @@
     "editor.rulers": [80],
     "files.trimTrailingWhitespace": true,
     "python.analysis.extraPaths": ["Codes"],
-    "python.analysis.typeCheckingMode": "strict"
-    // "python.analysis.typeCheckingMode": "basic"
+    // "python.analysis.typeCheckingMode": "strict"
+    "python.analysis.typeCheckingMode": "basic"
 }
