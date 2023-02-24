@@ -1,1 +1,58 @@
-
+// Twitch EventSub Response Bot - Config (v0.3--)
+{
+    // メッセージ送信先となるチャンネルに関する設定たち
+    "messageChannel": {
+        // ユーザー名(チャンネル名)
+        "userName": "YourChannelName",
+    },
+    //
+    // メッセージ送信を行うボットに関する設定たち
+    "bot": {
+        // ボットとして運用するユーザーのOAuthアクセストークン
+        //  (* 使う機能が要求する権限をボットとなるユーザーが持っていること)
+        //  (* 使う機能が要求する権限をトークンが持っていること)
+        "oAuthAccessToken": "9y0urb0tuser0authacceesst0ken9",
+        //
+        // チャンネルで表示されるボットの名前の色:
+        //  (* トークンが "user:manage:chat_color" 権限を持っていること)
+        //  Red, Blue, Green, Firebrick, Coral, YellowGreen, OrangeRed,
+        //  SeaGreen, GoldenRod, Chocolate, CadetBlue,
+        //  DodgerBlue, HotPink, BlueViolet,
+        //  SpringGreen,
+        //  #RRGGBB (* Turboユーザーのみ),
+        //  DoNotChange (* 色を変えない)
+        "nameColor": "Red",
+    },
+    //
+    // イベントたちに対する応答たちに関する設定
+    "responses": {
+        // レイド
+        "/raid": [
+            // コマンドやメッセージの中で置換される文字列:
+            //  {{raidBroadcasterUserName}} -> レイド元のユーザー名(チャンネル名)
+            //
+            // [
+            //  送信前の待機時間(秒),
+            //  公式コマンド・メッセージ (* ユーザーコマンドを含む),
+            //  (* 必要あれば追加情報1, 追加情報2, ...,)
+            // ]の組たち
+            //  (* 上から順に1つずつ実行)
+            //
+            // メッセージ (* ユーザーコマンドを含む) の例
+            [ 3, "!raided {{raidBroadcasterUserName}}", ],
+            //
+            // コマンドの例
+            //  /shoutout
+            //      (* ボットとなるユーザーが モデレーター 以上であること)
+            //      (* トークンが "moderator:manage:shoutouts" 権限を持っていること)
+            [10, "/shoutout", ],
+            //
+            // (* ほかのコマンドは、要望があれば追加対応するかもしれません)
+        ],
+        //
+        //  (* ほかのイベントは、要望があれば追加対応するかもしれません)
+    },
+    //
+    // (* ここは変更しないでください)
+    "ver_no": "Undefined",
+}
