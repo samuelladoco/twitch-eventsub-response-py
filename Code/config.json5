@@ -1,9 +1,10 @@
-// Twitch EventSub Response Bot - Config (v0.3--)
+// Twitch EventSub Response Bot - Config (v0.4--)
 {
     // メッセージ送信先となるチャンネルに関する設定たち
     "messageChannel": {
-        // ユーザー名(チャンネル名)
-        "userName": "YourChannelName",
+        // チャンネル配信者のユーザー名(チャンネルURLの末尾)
+        //  全て小文字でも、大文字と小文字が混在していても、どちらでも動く模様
+        "broadcasterUserName": "YourChannelName",
     },
     //
     // メッセージ送信を行うボットに関する設定たち
@@ -29,7 +30,7 @@
         // レイド
         "/raid": [
             // コマンドやメッセージの中で置換される文字列:
-            //  {{raidBroadcasterUserName}} -> レイド元のユーザー名(チャンネル名)
+            //  {{raidBroadcasterUserName}} -> レイド元のユーザー名(チャンネルURLの末尾)
             //
             // [
             //  送信前の待機時間(秒),
@@ -39,7 +40,7 @@
             //  (* 上から順に1つずつ実行)
             //
             // メッセージ (* ユーザーコマンドを含む) の例
-            [ 3, "!raided {{raidBroadcasterUserName}}", ],
+            [ 5, "!raided {{raidBroadcasterUserName}}", ],
             //
             // コマンドの例
             //  /shoutout
