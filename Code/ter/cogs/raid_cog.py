@@ -32,29 +32,33 @@ class TERRaidCog(TERBaseCog):
             '{{raidBroadcasterUserName}}': raid_broadcaster_user_name,
         }
         #
-        cm_units: list[TERCommandMessageUnit] = self.get_replaced_cm_units(
-            replacements
+        cm_units_replaced: list[TERCommandMessageUnit] = (
+            self.get_replaced_cm_units(replacements)
         )
-        for cm_unit in cm_units:
+        cm_units_valid: list[TERCommandMessageUnit] = []
+        for cm_unit in cm_units_replaced:
             # (コマンド) /shoutout の場合
             if cm_unit.cm_replaced == '/shoutout':
                 # レイド元のユーザー(チャンネル)IDを取得して利用
-                shoutout_broadcaster_user_id = str(tags.get('user-id', 0))
+                shoutout_broadcaster_user_id = str(tags.get('user-id', -1))
                 print(
                     f'    Shoutout broadcaster user ID = ' +
                     f'{shoutout_broadcaster_user_id}'
                 )
-                if shoutout_broadcaster_user_id == '0':
-                    print(f'      * Cannot shoutout.')
-                cm_unit.extend_args_replaced([shoutout_broadcaster_user_id])
+                if shoutout_broadcaster_user_id == '-1':
+                    print(f'      * Invalid ID')
+                    continue
+                else:
+                    cm_unit.extend_args_replaced([shoutout_broadcaster_user_id])
             #
             # ToDo: ★ (コマンド) 別のコマンドにも対応する場合は、追加の引数取得をここに実装する
             # elif cm_unit.cm_replaced == '/???':
             #     pass
             else:
                 pass
+            cm_units_valid.append(cm_unit)
         #
-        await self.execute_cms(channel, cm_units, )
+        await self.execute_cms(channel, cm_units_valid, )
         print(f'  done.')
         print(f'')
 # ----------------------------------------------------------------------

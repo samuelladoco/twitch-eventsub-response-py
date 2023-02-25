@@ -2,6 +2,7 @@
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 import asyncio
+import queue
 from typing import Any
 #
 from twitchio import PartialUser, User
@@ -20,32 +21,37 @@ class TERBaseCog(commands.Cog):
         bot: commands.Bot,
         _token: str,
         _pu: PartialUser,
-        _cm_units: list[list[Any]],
+        _cm_bases: list[list[Any]],
     ) -> None:
         self.bot: commands.Bot = bot
         self.__token: str = _token
         self.__pu: PartialUser = _pu
-        self.__cm_units: list[list[Any]] = _cm_units
+        self.__cm_bases: list[list[Any]] = _cm_bases
 
     def get_replaced_cm_units(self,
         _replacements: dict[str, str],
     ) -> list[TERCommandMessageUnit]:
         return [
-            TERCommandMessageUnit(cm_unit, _replacements, )
-            for cm_unit in self.__cm_units
+            TERCommandMessageUnit(cm_base, _replacements, )
+            for cm_base in self.__cm_bases
         ]
 
     async def execute_cms(self,
         _channel: Channel,
-        cm_units: list[TERCommandMessageUnit],
+        _cm_units: list[TERCommandMessageUnit],
     ) -> None:
+        index: int = 0
+        q: queue.Queue[TERCommandMessageUnit] = queue.Queue()
+        for cm_unit in [_cm_unit for _cm_unit in _cm_units]:
+            q.put(cm_unit)
+        #
         print(f'    Commands or messages')
-        for index, cm_unit in enumerate(cm_units):
-            cm_plus_args: list[str] = [cm_unit.cm_replaced]
-            cm_plus_args.extend(cm_unit.args_replaced)
+        while q.empty() is False:
+            index += 1
+            cm_unit: TERCommandMessageUnit = q.get()
             print(
-                f'      No. {index + 1} (after {cm_unit.sleep_sec:>2} s.) = '
-                + f'{cm_plus_args} ... ',
+                f'      {index} (after {cm_unit.sleep_sec:>3} s.) = '
+                + f'{[cm_unit.cm_replaced] + cm_unit.args_replaced} ... ',
                 end=''
             )
             #
@@ -62,9 +68,14 @@ class TERBaseCog(commands.Cog):
                         cm_unit.args_replaced[0]
                     )
                 except HTTPException as e:
-                    # ToDo: ★ マルチスレッド化して1分後にリトライ
                     print(f'failed.')
                     print(f'        {e}')
+                    if len(cm_unit.args_replaced) == 1:
+                        cm_base: list[Any] = [
+                            125, cm_unit.cm_replaced, cm_unit.args_replaced[0],
+                            '(Retry)',
+                        ]
+                        q.put(TERCommandMessageUnit(cm_base, {}, ))
                     continue
             #
             # ToDo: ★ (コマンド) 別のコマンドにも対応する場合は、ここに実装する
@@ -83,16 +94,16 @@ class TERBaseCog(commands.Cog):
 class TERCommandMessageUnit:
 
     def __init__(self,
-        _cm_unit: list[Any],
+        _cm_base: list[Any],
         _replacements: dict[str, str],
     ) -> None:
-        self.__sleep_sec: int = int(_cm_unit[0])
+        self.__sleep_sec: int = int(_cm_base[0])
         #
-        self.__cm_replaced: str = str(_cm_unit[1])
+        self.__cm_replaced: str = str(_cm_base[1])
         for (rk, rv) in _replacements.items():
             self.__cm_replaced = self.__cm_replaced.replace(rk, rv)
         #
-        self.__args_replaced: list[str] = [str(a) for a in _cm_unit[2:]]
+        self.__args_replaced: list[str] = [str(a) for a in _cm_base[2:]]
         for (rk, rv) in _replacements.items():
             self.__args_replaced = [
                 arg_temp.replace(rk, rv) for arg_temp in self.__args_replaced
