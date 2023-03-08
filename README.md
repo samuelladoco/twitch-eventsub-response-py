@@ -1,4 +1,4 @@
-最終更新日：2023-02-26 (v0.4)
+最終更新日：2023-03-08 (v0.5)
 
 # Twitch EventSub Response Bot (twitch-eventsub-response-py)
 [Twitch](https://www.twitch.tv/) で配信中にレイドを受けたときに、それに応答して自動で「 `/shoutout レイド元のユーザー名` 」Twitch公式チャットコマンドの実行や、チャット欄に指定したメッセージを表示してくれる、ボットアプリです。
@@ -43,12 +43,14 @@ Twitch配信のチャット欄に指定したメッセージを自動で表示�
 
 
 
-## ダウンロード方法
+## ダウンロード（インストール）方法
 - .exeファイル版：右にある Releases → 最新版の `twitch-eventsub-response-py-vX.Y.zip` ファイルをダウンロードして展開
     - `X.Y` の部分は数字
 - スクリプト版：右のReleasesからソースコードをダウンロードするなり、本リポジトリーをクローンするなりして、Pythonインタプリタを使って実行
 
 .exeファイル版は、ダウンロードするのに使用するブラウザーによってはウイルスの疑いありと判定され、ダウンロードが妨げられる可能性があります。その場合は、（もちろん本ボットはウイルスではないので）疑いを解除してダウンロードできるようにしてください。
+
+
 
 
 ## 事前設定
@@ -225,7 +227,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、コンソール（黒い画面）に以下のようなメッセージが表示されます。
 
 ```
---- Twitch EventSub Response Bot (v0.4) ---
+--- Twitch EventSub Response Bot (v0.5) ---
 [Preprocess]
   JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-vX.Y\config.json5
     parsing this file ... done.
@@ -256,13 +258,13 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 
-### 本ボットが動作中であるかの確認
+### 動作中であるかの確認
 配信のチャット欄に「\<ter\>\_test」と入力すると、「 YourBotUserName *yourbotusername bot for \<ter\>\_ is alive.* 」と表示されます。
 
 また、コンソール（黒い画面）に以下のようなメッセージが表示されます。
 
 ```
-  Testing bot (v0.4) ...
+  Testing bot (v0.5) ...
     Channel name = yourchannelname
     Bot user ID = 888888888
     Bot user name = yourbotusername
@@ -304,9 +306,17 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 
+## 削除（アンインストール）方法
+`README.pdf` が格納されているフォルダーを削除してください。
+- .exeファイル版には、 `README.pdf` と同じフォルダー内に `_MEIxxxxxx` （ `xxxxxx` の部分は数字）フォルダーが生成されることあり
+    - このフォルダーは、本ボットが起動していない状態であればいつでも削除可能
+
+
+
+
 ## 今後の展開
 要望に応じて、本ボットで対応する公式コマンドやメッセージを増やしていければと思います。対応コマンドやメッセージが増えれば、例えば以下のようなことができるようになると予想します。
-- 一定額以上のビッツをくれたユーザーに対して自動でVIP権限を付与
+- 一定額以上のビッツをくれたユーザーやチャンネルポイントを使用したユーザーに対して自動でVIP権限を付与
     - 本ボットのアプリ名には「 [EventSub](https://dev.twitch.tv/docs/eventsub/) 」とついていますが、開発の対象をそれ以外にも広げていきたみ
 - アンフォローしたユーザーを自動でバン（笑）
 
@@ -314,7 +324,10 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 ## バージョン履歴
-2023/02/26：v0.4
+2023-03-08：v0.5
+- .exeファイル版で `_MEIxxxxxx` （ `xxxxxx` の部分は数字）一時フォルダーが.exeファイルがあるフォルダーに生成されるように変更
+
+2023-02-26：v0.4
 - `<ter>_kill` または `<ter>_kill (0から255の整数値)` コマンドの追加
     - 本ボットを停止させる機能
         - チャンネルの配信者またはボットとして利用するユーザーのみが使用可能
@@ -325,16 +338,16 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 - `config.json5` の書式変更
     - `userName` キーを `broadcasterUserName` キーに変更
 
-2023/02/24：v0.3
+2023-02-24：v0.3
 - `config.json5` の書式変更
     - `commands` と `messages` のキーと実行順の指定を廃止し、上から順に実行されるように簡素化
     - `raid` を `/raid` に、 `shoutout` を `/shoutout` にそれぞれ変更
 
-2023/02/22：v0.2
+2023-02-22：v0.2
 - ボットとして運用するユーザーとして、配信で使っているユーザー以外も指定可能に
 - 1分間の間に複数のレイドを受けた場合、ボットがエラー終了しないように
 
-2023/02/21：v0.1
+2023-02-21：v0.1
 
 
 
@@ -359,4 +372,4 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 ### .exeファイルの生成方法
-`Pyinstaller` フォルダーをカレントディレクトリにして、 `pyinstaller --clean --onefile --name twitch-eventsub-response-py ../Codes/main.py` をする。
+`Pyinstaller` フォルダーをカレントディレクトリにして、 `pyinstaller --clean --onefile --runtime-tmpdir=. --name twitch-eventsub-response-py ../Codes/main.py` をする。
