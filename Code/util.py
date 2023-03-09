@@ -30,10 +30,10 @@ class JSON5Reader:
         """
         s_file: str = ''
         with open(
-            file=_file, mode='r', encoding=TextFileEncodingEstimator.do(_file),
+            _file, mode='r', encoding=TextFileEncodingEstimator.do(_file),
         ) as f_t:
             s_file = f_t.read()
-        d: dict[str, Any] = json5.loads(s=s_file, )  # type: ignore
+        d: dict[str, Any] = json5.loads(s_file, )  # type: ignore
         return d
 # ----------------------------------------------------------------------
 
@@ -57,8 +57,8 @@ class TextFileEncodingEstimator:
             推定したエンコーディングの名称
         """
         enc: str = ''
-        with open(file=_file, mode='rb', ) as f_b:
-            enc = str(chardet.detect(byte_str=f_b.read(), )['encoding'])
+        with open(_file, 'rb', ) as f_b:
+            enc = str(chardet.detect(f_b.read(), )['encoding'])
         return enc
 # ----------------------------------------------------------------------
 # -----------------------------------------------------------------------------

@@ -13,7 +13,7 @@ import util
 
 # Version No.
 # -----------------------------------------------------------------------------
-ver_no: str = '0.5'
+ver_no: str = '1.0'
 # -----------------------------------------------------------------------------
 
 
@@ -25,25 +25,29 @@ def main() -> int:
     print(f'{n}')
     #
     print(f'[Preprocess]')
-    j_file: pathlib.Path = (
-        pathlib.Path(
-            rf'{os.path.abspath(os.path.dirname(sys.argv[0]))}'
-        ).joinpath('config.json5')
+    base_dir: pathlib.Path = pathlib.Path(
+        rf'{os.path.abspath(os.path.dirname(sys.argv[0]))}'
     )
-    print(f'  JSON5 file path = {j_file}')
+    rt_file: pathlib.Path = base_dir.joinpath('restart-flag.txt')
+    rt_file.unlink(missing_ok=True)
+    #
+    cj_file: pathlib.Path = base_dir.joinpath('config.json5')
+    print(f'  JSON5 file path = {cj_file}')
     print(f'    parsing this file ... ', end='', )
-    j_obj: dict[str, Any] = util.JSON5Reader.open_and_loads(j_file)
-    j_obj['ver_no'] = ver_no
+    cj_obj: dict[str, Any] = util.JSON5Reader.open_and_loads(cj_file)
+    cj_obj['ver_no'] = ver_no
     print(f'done.')
     print(f'')
     #
     print(f'[Activation of Bot]')
-    b: ter.TERBot = ter.TERBot(j_obj)
+    b: ter.TERBot = ter.TERBot(cj_obj)
     #
     print(f'[Run of Bot]')
     b.run()
     #
-    print(f'[Postprocess] (nothing)')
+    print(f'[Postprocess]')
+    if b.return_code == 3:
+        rt_file.touch()
     print(f'')
     print(f'-' * len(n))
     return b.return_code

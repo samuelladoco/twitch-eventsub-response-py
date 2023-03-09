@@ -1,4 +1,4 @@
-// Twitch EventSub Response Bot - Config (v0.4--)
+// Twitch EventSub Response Bot - Config (v1.0--)
 {
     // メッセージ送信先となるチャンネルに関する設定たち
     "messageChannel": {
@@ -16,13 +16,12 @@
         //
         // チャンネルで表示されるボットの名前の色:
         //  (* トークンが "user:manage:chat_color" 権限を持っていること)
-        //  Red, Blue, Green, Firebrick, Coral, YellowGreen, OrangeRed,
-        //  SeaGreen, GoldenRod, Chocolate, CadetBlue,
-        //  DodgerBlue, HotPink, BlueViolet,
-        //  SpringGreen,
+        //  blue, blue_violet, cadet_blue, chocolate, coral, dodger_blue,
+        //  firebrick, golden_rod, green, hot_pink, orange_red, red,
+        //  sea_green, spring_green, yellow_green
         //  #RRGGBB (* Turboユーザーのみ),
         //  DoNotChange (* 色を変えない)
-        "nameColor": "Red",
+        "nameColor": "blue",
     },
     //
     // イベントたちに対する応答たちに関する設定
