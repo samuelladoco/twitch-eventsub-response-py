@@ -3,7 +3,7 @@
 from __future__ import annotations
 from typing import Any
 #
-from twitchio.channel import Channel
+from twitchio import Channel
 from twitchio.ext import commands
 #
 from .base_cog import TERBaseCog, TERCommandMessageUnit
@@ -33,7 +33,7 @@ class TERRaidCog(TERBaseCog):
         }
         #
         cm_units_replaced: list[TERCommandMessageUnit] = (
-            self.get_replaced_cm_units(replacements)
+            self.get_replaced_cm_units(replacements, )
         )
         cm_units_valid: list[TERCommandMessageUnit] = []
         for cm_unit in cm_units_replaced:
@@ -49,10 +49,12 @@ class TERRaidCog(TERBaseCog):
                     print(f'      * Invalid ID')
                     continue
                 else:
-                    cm_unit.extend_args_replaced([shoutout_broadcaster_user_id])
+                    cm_unit.extend_args_replaced(
+                        [shoutout_broadcaster_user_id],
+                    )
             #
             # ToDo: ★ (コマンド) 別のコマンドにも対応する場合は、追加の引数取得をここに実装する
-            # elif cm_unit.cm_replaced == '/???':
+            # elif cm_unit.cm_replaced == '/????':
             #     pass
             else:
                 pass

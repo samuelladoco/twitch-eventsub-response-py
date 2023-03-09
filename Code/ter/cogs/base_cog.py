@@ -5,9 +5,7 @@ import asyncio
 import queue
 from typing import Any
 #
-from twitchio import PartialUser, User
-from twitchio.channel import Channel
-from twitchio.errors import HTTPException
+from twitchio import Channel, HTTPException, PartialUser, User
 from twitchio.ext import commands
 # -----------------------------------------------------------------------------
 
@@ -70,16 +68,15 @@ class TERBaseCog(commands.Cog):
                 except HTTPException as e:
                     print(f'failed.')
                     print(f'        {e}')
-                    if len(cm_unit.args_replaced) == 1:
-                        cm_base: list[Any] = [
-                            125, cm_unit.cm_replaced, cm_unit.args_replaced[0],
-                            '(Retry)',
-                        ]
-                        q.put(TERCommandMessageUnit(cm_base, {}, ))
+                    cm_base: list[Any] = [
+                        125, cm_unit.cm_replaced, cm_unit.args_replaced[0],
+                        '(Retry)',
+                    ]
+                    q.put(TERCommandMessageUnit(cm_base, {}, ))
                     continue
             #
             # ToDo: ★ (コマンド) 別のコマンドにも対応する場合は、ここに実装する
-            # elif cm_unit.cm_replaced == '/???':
+            # elif cm_unit.cm_replaced == '/????':
             #     pass
             #
             # (メッセージ)
