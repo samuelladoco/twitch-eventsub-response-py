@@ -1,4 +1,4 @@
-最終更新日：2023-03-08 (v0.5)
+最終更新日：2023-03-10 (v1.0)
 
 # Twitch EventSub Response Bot (twitch-eventsub-response-py)
 [Twitch](https://www.twitch.tv/) で配信中にレイドを受けたときに、それに応答して自動で「 `/shoutout レイド元のユーザー名` 」Twitch公式チャットコマンドの実行や、チャット欄に指定したメッセージを表示してくれる、ボットアプリです。
@@ -118,7 +118,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 まず、 `config.json5` ファイルを、テキストエディタ（メモ帳など）で開いてください。 `config.json5` は、ダウンロード時点では以下の内容になっています。
 
 ```
-// Twitch EventSub Response Bot - Config (v0.4--)
+// Twitch EventSub Response Bot - Config (v1.0--)
 {
     // メッセージ送信先となるチャンネルに関する設定たち
     "messageChannel": {
@@ -136,13 +136,12 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
         //
         // チャンネルで表示されるボットの名前の色:
         //  (* トークンが "user:manage:chat_color" 権限を持っていること)
-        //  Red, Blue, Green, Firebrick, Coral, YellowGreen, OrangeRed,
-        //  SeaGreen, GoldenRod, Chocolate, CadetBlue,
-        //  DodgerBlue, HotPink, BlueViolet,
-        //  SpringGreen,
+        //  blue, blue_violet, cadet_blue, chocolate, coral, dodger_blue,
+        //  firebrick, golden_rod, green, hot_pink, orange_red, red,
+        //  sea_green, spring_green, yellow_green
         //  #RRGGBB (* Turboユーザーのみ),
         //  DoNotChange (* 色を変えない)
-        "nameColor": "Red",
+        "nameColor": "blue",
     },
     //
     // イベントたちに対する応答たちに関する設定
@@ -185,7 +184,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 | :--- | :-- | :-- |
 | `"broadcasterUserName": "YourChannelName"` | `YourChannelName` | 配信を行うユーザー名（チャンネルURLの末尾） |
 | `"oAuthAccessToken": "9y0urb0tuser0authacceesst0ken9"` | `9y0urb0tuser0authacceesst0ken9` | 上記の方法で取得したトークン文字列 |
-| `"nameColor": "Red"` | `Red` | 直上コメントの「名前の色たち」で候補として挙げられている色を表す文字列たちから1つ |
+| `"nameColor": "blue"` | `blue` | 直上コメントの「名前の色」で候補として挙げられている色を表す文字列たちから1つ |
 | `[ 5, "!raided {{raidBroadcasterUserName}}", ],` | `5`                                   | 順序が1つ前のコマンド・メッセージが実行されてから、表示したいメッセージが実行されるまで待機する時間（秒）（最初に実行されるコマンド・メッセージの場合は、レイドを受けてからの時間） |
 |                                                   | `!raided {{raidBroadcasterUserName}}` | 表示したいメッセージ（これを利用して、 **ユーザーコマンドも実行可能** ） |
 |                                                   | `[ 5, "!raided {{raidBroadcasterUserName}}", ],` | このメッセージを表示したくない場合は、行ごと削除 |
@@ -197,8 +196,6 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
     - もし [Twitchでレイドされたときに自動でお礼と宣伝をする方法](https://naosan-rta.hatenablog.com/entry/2022/02/27/113227) のとおりに [Nightbot](https://nightbot.tv/) に `!raided` ユーザーコマンド表示したいメッセージを設定していた場合、チャット欄に「 `【表示名】さんレイドありがとうございます！【表示名】さん(【ゲーム名】をプレイ中)のチャンネルはコチラ→【URL】` 」と表示
         - 本ボットと [Nightbot](https://nightbot.tv/) を設定すれば、 **[Streamlabs](https://streamlabs.com/) ないし [StreamElements](https://streamelements.com/) といったサービス側の設定は不要**
 - 次に、10秒待機したのち、 `/shoutout レイド元のユーザー名` 公式コマンドを実行
-
-本ボットと [チャット翻訳ちゃん](http://www.sayonari.com/trans_asr/trans.html) を、両方とも同じユーザーをボットとして同時に使用する場合は、 [チャット翻訳ちゃん](http://www.sayonari.com/trans_asr/trans.html) 側で名前の色を指定し、本ボット側は `"nameColor": "DoNotChange"` としてください。
 
 `config.json5` の文字コードは、ダウンロード時点では `UTF-8（BOMなし）` ですが、上書き保存した際にほかの文字コードに変わってしまっても、問題なく動作するように作ったつもりです。
 
@@ -214,7 +211,8 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 ### 起動
-- .exeファイル版： `twitch-eventsub-response-py.exe` を実行
+- .exeファイル版： `run.bat` を実行
+    - `twitch-eventsub-response-py.exe` を直接実行してもよいが、本ボットの再起動機能が動作しない
 - スクリプト版： Pythonで `./Code/main.py` を実行
 
 .exeファイル版は、Windowsやセキュリティーソフトによりウイルスの疑いありと判定され、初回の起動が妨げられる可能性があります。その場合は、（もちろん本ボットはウイルスではないので）疑いを解除して起動できるようにしてください。
@@ -222,12 +220,12 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 本ボットはネット通信を行うアプリであるため、初回起動時にファイアーウォールソフトが通信をブロックしようとする可能性があります。その場合は、 **通信を許可してください** 。
 
-正常に起動すると、配信のチャット欄に「 YourBotUserName *yourbotusername bot for \<ter\>\_ has joined.* 」と表示されます。
+正常に起動すると、配信のチャット欄に「 YourBotUserName *bot for \<ter\>\_ has joined and is ready.* 」と表示されます。
 
 また、コンソール（黒い画面）に以下のようなメッセージが表示されます。
 
 ```
---- Twitch EventSub Response Bot (v0.5) ---
+--- Twitch EventSub Response Bot (v1.0) ---
 [Preprocess]
   JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-vX.Y\config.json5
     parsing this file ... done.
@@ -235,13 +233,12 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 [Activation of Bot]
   Initializing bot ...
     Message channel user name = YourChannelName
-    Bot token length = 99
+    Bot token length = 30
   done.
 
 [Run of Bot]
   Joining channel ...
     Channel name = yourchannelname
-    Setting bot name color = Red ... done.
   done.
 
   Making bot ready ...
@@ -249,9 +246,11 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
     Bot user name = yourbotusername
     Bot commands
       <ter>_kill
+      <ter>_restart
       <ter>_test
     Bot cogs
       TERRaidCog
+    Setting bot name color = blue ... done.
   done.
 
 ```
@@ -259,17 +258,18 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 ### 動作中であるかの確認
-配信のチャット欄に「\<ter\>\_test」と入力すると、「 YourBotUserName *yourbotusername bot for \<ter\>\_ is alive.* 」と表示されます。
+配信のチャット欄に「 `<ter>_test` 」と入力すると、「 YourBotUserName *bot for \<ter\>\_ is alive.* 」と表示されます。
 
 また、コンソール（黒い画面）に以下のようなメッセージが表示されます。
 
 ```
-  Testing bot (v0.5) ...
+  Testing bot (v1.0) ...
     Channel name = yourchannelname
     Bot user ID = 888888888
     Bot user name = yourbotusername
     Bot commands
       <ter>_kill
+      <ter>_restart
       <ter>_test
     Bot cogs
       TERRaidCog
@@ -281,15 +281,26 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 
+### 再起動
+.exeファイル版で `run.bat` を実行して本ボットを起動していた場合、配信のチャット欄に「 `<ter>_restart` 」または「 `<ter>_kill 3` 」と入力すると、配信のチャット欄に「 YourBotUserName *bot for \<ter\>\_ has stopped.* 」と表示されたあと、本ボットが再起動します。
+- チャンネルの配信者またはボットとして利用するユーザーのみが実行可能
+
+
+
 ### 停止
 - 直接停止させる方法
     - .exeファイル版：コンソール（黒い画面）を閉鎖
+        - この方法で停止させた場合、.exeファイルと同じフォルダー内に `_MEIxxxxxx` （ `xxxxxx` の部分は数字）フォルダーが残されることあり
+            - このフォルダーは、本ボットが起動していない状態であればいつでも削除可能
     - スクリプト版：実行中の `./Code/main.py` スクリプトを停止
-- 配信のチャット欄から停止させる方法
-    - チャット欄に「 `<ter>_kill` 」または「 `<ter>_kill (0から255の整数値)` 」と入力
-        - チャンネルの配信者またはボットとして利用するユーザーのみが使用可能
-        - `(0から255の整数値)` を入力した場合、本アプリのリターンコードに設定
-            - 入力しなかった場合、 リターンコードは `0`
+- 配信のチャット欄から停止させる方法：チャット欄に「 `<ter>_kill` 」または「 `<ter>_kill (0から255の整数値)` 」と入力
+    - **こちらをお勧め**
+    - チャンネルの配信者またはボットとして利用するユーザーのみが実行可能
+    - チャット欄に「 YourBotUserName *bot for \<ter\>\_ has stopped.* 」と表示
+    - `(0から255の整数値)` を入力した場合、本アプリのリターンコードに設定
+        - 入力しなかった場合、 リターンコードは `0`
+        - `3` を入力した場合、 `restart-flag.txt` という空のファイルが生成
+            - .exeファイル版で `run.bat` を実行して本ボットを起動していた場合、本ボットが再起動
 
 例えば、配信のチャット欄に `<ter>_kill 222` と入力した場合は、コンソール（黒い画面）に以下のようなメッセージが表示されます。
 
@@ -298,7 +309,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
     Return code = 222
   done.
 
-[Postprocess] (nothing)
+[Postprocess]
 
 -------------------------------------------
 ```
@@ -324,6 +335,15 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 ## バージョン履歴
+2023-03-10：v1.0
+- .exeファイル版に `run.bat` を同こんし、こちらのほうを実行することを推奨するように変更
+- チャット欄で表示されるボットユーザー名の色を設定できなくなっていたのを修正
+    - Twitch APIの仕様変更が原因と推測
+- `<ter>_restart` および `<ter>_kill 3` コマンドの追加
+    - .exeファイル版で `run.bat` を実行して本ボットを起動していた場合、本ボットが再起動する機能
+        - チャンネルの配信者またはボットとして利用するユーザーのみが実行可能
+- `/shoutout` 公式コマンドの実行に失敗した場合のリトライの回数制限を撤廃
+
 2023-03-08：v0.5
 - .exeファイル版で `_MEIxxxxxx` （ `xxxxxx` の部分は数字）一時フォルダーが.exeファイルがあるフォルダーに生成されるように変更
 
