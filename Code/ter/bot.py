@@ -3,8 +3,7 @@
 from __future__ import annotations
 from typing import Any
 #
-from twitchio import Chatter, PartialUser
-from twitchio.channel import Channel
+from twitchio import Channel, Chatter, PartialUser
 from twitchio.ext import commands
 #
 from .cogs import *
@@ -30,7 +29,7 @@ class TERBot(commands.Bot):
         print(f"    Message channel user name = {broadcaster_user_name}")
         print(f'    Bot token length = {len(self.__token)}')
         super().__init__(  # type: ignore
-            token=self.__token,
+            self.__token,
             prefix=self.__prefix,
             initial_channels=[
                 broadcaster_user_name,
@@ -46,27 +45,17 @@ class TERBot(commands.Bot):
     async def event_channel_joined(self, channel: Channel):
         print(f'  Joining channel ...')
         print(f'    Channel name = {channel.name}')
-        #
-        name_color: str = str(self.__j['bot']['nameColor'])
-        if name_color != 'DoNotChange':
-            print(f'    Setting bot name color = {name_color} ... ', end='', )
-            #
-            await channel.send(f'/color {name_color}')
-            print(f'done.')
-        #
-        await channel.send(
-            f'/me {self.nick} bot for {self.__prefix} has joined.'
-        )
         print(f'  done.')
         print(f'')
 
     async def event_ready(self) -> None:
         print(f'  Making bot ready ...')
         assert self.user_id is not None, f'Bot user ID is unknown.'
-        assert self.nick is not None, f'Bot user ID is unknown.'
+        assert self.nick is not None, f'Bot user name is unknown.'
         self.__pu = self.create_user(self.user_id, self.nick)
         print(f'    Bot user ID = {self.__pu.id}')
         print(f'    Bot user name = {self.__pu.name}')
+        #
         print(f'    Bot commands')
         for c_name in self.commands.keys():
             print(f'      {self.__prefix}{str(c_name)}')
@@ -78,11 +67,33 @@ class TERBot(commands.Bot):
             )
         )
         # ToDo: ★ 別のCogを開発した場合は、登録処理をここに実装する
+        # self.add_cog(
+        #     TER????Cog(
+        #
+        #     )
+        # )
         #
         for c in self.cogs.keys():
             print(f'      {c}')
+        #
+        name_color: str = str(self.__j['bot']['nameColor'])
+        if name_color != 'DoNotChange':
+            print(f'    Setting bot name color = {name_color} ... ', end='', )
+            #
+            await self.update_chatter_color(
+                self.__token, self.user_id, name_color
+            )
+            print(f'done.')
         print(f'  done.')
         print(f'')
+        #
+        assert len(self.connected_channels) == 1, (
+            f'Bot is joining {self.connected_channels}.'
+        )
+        #
+        await self.connected_channels[0].send(
+            f'/me bot for {self.__prefix} has joined and is ready.'
+        )
 
     @commands.command(name='test', )
     async def __test(self, ctx: commands.Context):
@@ -99,9 +110,15 @@ class TERBot(commands.Bot):
         for c_name in self.cogs.keys():
             print(f'      {c_name}')
         #
-        await ctx.send(f'/me {self.nick} bot for {self.__prefix} is alive.')
+        await ctx.send(f'/me bot for {self.__prefix} is alive.')
         print(f'  done.')
         print(f'')
+
+    @commands.command(name='restart', )
+    async def __restart(self, ctx: commands.Context):
+        ctx.message.content = f'{self._prefix}kill 3'
+        #
+        await self.__kill(ctx)
 
     @commands.command(name='kill', )
     async def __kill(self, ctx: commands.Context):
@@ -109,9 +126,7 @@ class TERBot(commands.Bot):
             print(f'  Killing bot ... ')
             self.loop.stop()
             #
-            await ctx.send(
-                f'/me {self.nick} bot for {self.__prefix} has stopped.'
-            )
+            await ctx.send(f'/me bot for {self.__prefix} has stopped.')
             #
             is_valid_return_code: bool = False
             return_code_str: str = str(
@@ -137,7 +152,7 @@ class TERBot(commands.Bot):
             print(f'')
 
     def __is_by_channel_broadcaster_or_myself(self,
-        ctx: commands.Context
+        ctx: commands.Context,
     ) -> bool:
         if type(ctx.author) is Chatter:
             if ctx.author.is_broadcaster is True:
