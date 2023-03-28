@@ -1,9 +1,9 @@
-// Twitch EventSub Response Bot - Config (v1.0--)
+// Twitch EventSub Response Bot - Config (v2.0--)
 {
     // メッセージ送信先となるチャンネルに関する設定たち
     "messageChannel": {
         // チャンネル配信者のユーザー名(チャンネルURLの末尾)
-        //  全て小文字でも、大文字と小文字が混在していても、どちらでも動く模様
+        //  (* 全て英小文字でも、英大文字と英小文字が混在していても、どちらでも可)
         "broadcasterUserName": "YourChannelName",
     },
     //
@@ -16,11 +16,10 @@
         //
         // チャンネルで表示されるボットの名前の色:
         //  (* トークンが "user:manage:chat_color" 権限を持っていること)
-        //  blue, blue_violet, cadet_blue, chocolate, coral, dodger_blue,
-        //  firebrick, golden_rod, green, hot_pink, orange_red, red,
-        //  sea_green, spring_green, yellow_green
-        //  #RRGGBB (* Turboユーザーのみ),
-        //  DoNotChange (* 色を変えない)
+        //  "blue", "blue_violet", "cadet_blue", "chocolate", "coral",
+        //  "dodger_blue", "firebrick", "golden_rod", "green", "hot_pink",
+        //  "orange_red", "red", "sea_green", "spring_green", "yellow_green",
+        //  "#RRGGBB" (* Turboユーザーのみ設定可), "doNotChange" (* 色を変えない),
         "nameColor": "blue",
     },
     //
@@ -28,14 +27,14 @@
     "responses": {
         // レイド
         "/raid": [
-            // コマンドやメッセージの中で置換される文字列:
+            // コマンドやメッセージの中で置換される文字列たち:
             //  {{raidBroadcasterUserName}} -> レイド元のユーザー名(チャンネルURLの末尾)
             //
             // [
             //  送信前の待機時間(秒),
             //  公式コマンド・メッセージ (* ユーザーコマンドを含む),
             //  (* 必要あれば追加情報1, 追加情報2, ...,)
-            // ]の組たち
+            // ] の組たち
             //  (* 上から順に1つずつ実行)
             //
             // メッセージ (* ユーザーコマンドを含む) の例
@@ -47,12 +46,178 @@
             //      (* トークンが "moderator:manage:shoutouts" 権限を持っていること)
             [10, "/shoutout", ],
             //
+            // (* 公式コマンド・メッセージを実行しない場合は、
+            //  該当する [ ] の行を削除するか、行の頭に // を挿入(コメントアウト))
+            // [10, "Sample message", ],
+            //
             // (* ほかのコマンドは、要望があれば追加対応するかもしれません)
         ],
         //
         //  (* ほかのイベントは、要望があれば追加対応するかもしれません)
     },
     //
-    // (* ここは変更しないでください)
-    "ver_no": "Undefined",
+    // メッセージたちに対する翻訳に関する設定
+    "translation": {
+        // 使用する翻訳サービスたちと優先使用順位:
+        //  (* 翻訳できるまで、上に設定したサービスから順に使用する)
+        "serviceWithKeyOrURLs": [
+            // DeepL翻訳で、認証キーを使用しない場合 (* 不具合がなければ変更不要)
+            ["deeplTranslate", "https://www2.deepl.com/jsonrpc", ],
+            //
+            // Google翻訳で、通常の場合:
+            //  "translate.google.????/"
+            //      (* いずれかの国のURLを設定するが、不具合がなければ変更不要)
+            ["googleTrans", "translate.google.co.jp", ],
+            //
+            // (* サービスを使用しない場合は、
+            //  該当する [ ] の行を削除するか、行の頭に // を挿入(コメントアウト))
+            //
+            // DeepL翻訳で、認証キーを使用する場合
+            // ["deeplKey", "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx", ],
+            //
+            // Google翻訳で、 Google Apps Script (GAS) を使用する場合
+            //  "https://script.google.com/macros/s/????/exec" (* GASのURL)
+            // ["googleGAS", "https://script.google.com/macros/s/????/exec", ],
+        ],
+        // 翻訳元言語の判定に使用するサービス (* 不具合がなければ変更不要)
+        "fromLanguageDetection": "translate.google.co.jp",
+        // 翻訳しないメッセージ
+        "messagesToIgnore": {
+            // ユーザー名たち (* ボットとして運用するユーザーは記載がなくても翻訳しない)
+            //  (* 英大文字と英小文字が混在していても可)
+            "senderUserName": ["nightbot", "", ],
+            // メッセージの言語たち:
+            //  (* ノルウェー語, 中国語は、
+            //     DeepL翻訳とGoogle翻訳とで略称が異なるため、
+            //     これらの言語を設定する場合は両方の略称を併記するのがよい)
+            //  DeepL翻訳(認証キー使用, 不使用), Google翻訳すべてで利用可能な言語たち:
+            //      "BG" (Bulgarian), "CS" (Czech), "DA" (Danish),
+            //      "DE" (German), "EL" (Greek), "EN" (English), "ES" (Spanish),
+            //      "ET" (Estonian), "FI" (Finnish), "FR" (French),
+            //      "HU" (Hungarian), "IT" (Italian), "JA" (Japanese),
+            //      "LT" (Lithuanian), "LV" (Latvian), "NL" (Dutch),
+            //      "PL" (Polish), "PT" (Portuguese), "RO" (Romanian),
+            //      "RU" (Russian), "SK" (Slovak), "SL" (Slovenian),
+            //      "SV" (Swedish),
+            //  DeepL翻訳(認証キー使用), Google翻訳で利用可能な言語たち:
+            //      "ID" (Indonesian), "KO" (Korean), "TR" (Turkish),
+            //      "UK" (Ukrainian),
+            //  DeepL翻訳(認証キー使用, 不使用)で利用可能な言語たち:
+            //      "ZH" (Chinese)
+            //          (* Google翻訳では "zh-cn" または "zh-tw" ),
+            //  DeepL翻訳(認証キー使用)でのみ利用可能な言語たち:
+            //      "NB" (Norwegian),
+            //          (* Google翻訳では "no" )
+            //  Google翻訳でのみ利用可能な言語たち:
+            //      "af" (afrikaans), "sq" (albanian), "am" (amharic),
+            //      "ar" (arabic), "hy" (armenian), "az" (azerbaijani),
+            //      "eu" (basque), "be" (belarusian), "bn" (bengali),
+            //      "bs" (bosnian), "ca" (catalan), "ceb" (cebuano),
+            //      "ny" (chichewa),
+            //      "zh-cn" (chinese (simplified)), "zh-tw" (chinese (traditional)),
+            //          (* DeepL翻訳(認証キー使用, 不使用)では "ZH" )
+            //      "co" (corsican), "hr" (croatian), "eo" (esperanto),
+            //      "tl" (filipino), "fy" (frisian), "gl" (galician),
+            //      "ka" (georgian), "gu" (gujarati), "ht" (haitian creole),
+            //      "ha" (hausa), "haw" (hawaiian), "iw" (hebrew),
+            //      "he" (hebrew), "hi" (hindi), "hmn" (hmong),
+            //      "is" (icelandic), "ig" (igbo), "ga" (irish),
+            //      "jw" (javanese), "kn" (kannada), "kk" (kazakh),
+            //      "km" (khmer), "ku" (kurdish (kurmanji)), "ky" (kyrgyz),
+            //      "lo" (lao), "la" (latin), "lb" (luxembourgish),
+            //      "mk" (macedonian), "mg" (malagasy), "ms" (malay),
+            //      "ml" (malayalam), "mt" (maltese), "mi" (maori),
+            //      "mr" (marathi), "mn" (mongolian), "my" (myanmar (burmese)),
+            //      "ne" (nepali),
+            //      "no" (norwegian),
+            //          (* DeepL翻訳(認証キー使用)では "NB" )
+            //      "or" (odia), "ps" (pashto), "fa" (persian), "pa" (punjabi),
+            //      "sm" (samoan), "gd" (scots gaelic), "sr" (serbian),
+            //      "st" (sesotho), "sn" (shona), "sd" (sindhi),
+            //      "si" (sinhala), "so" (somali), "su" (sundanese),
+            //      "sw" (swahili), "tg" (tajik), "ta" (tamil), "te" (telugu),
+            //      "th" (thai), "ur" (urdu), "ug" (uyghur), "uz" (uzbek),
+            //      "vi" (vietnamese), "cy" (welsh), "xh" (xhosa),
+            //      "yi" (yiddish), "yo" (yoruba), "zu" (zulu),
+            //      (* ほかにもあるが、本ボットでは未対応)
+            "fromLanguages": ["", ],
+            // ユーザーコマンドの接頭辞たち (* "<ter>_" は記載がなくても翻訳しない)
+            "userCommandPrefixes": ["!", "", ],
+            // メッセージ内の文字列たち
+            "stringsInMessage": ["http", "", ],
+        },
+        // 翻訳先言語:
+        //  (* 英語, ノルウェー語, ポルトガル語, 中国語は、
+        //     DeepL翻訳(認証キー使用, 不使用)とGoogle翻訳とで略称が異なるため、
+        //     これらの言語を設定する場合は両方の略称を併記するのがよい)
+        //  DeepL翻訳(認証キー使用, 不使用), Google翻訳すべてで利用可能な言語たち:
+        //      "BG" (Bulgarian), "CS" (Czech), "DA" (Danish), "DE" (German),
+        //      "EL" (Greek), "ES" (Spanish), "ET" (Estonian), "FI" (Finnish),
+        //      "FR" (French), "HU" (Hungarian), "IT" (Italian),
+        //      "JA" (Japanese), "LT" (Lithuanian), "LV" (Latvian),
+        //      "NL" (Dutch), "PL" (Polish), "RO" (Romanian), "RU" (Russian),
+        //      "SK" (Slovak), "SL" (Slovenian), "SV" (Swedish),
+        //  DeepL翻訳(認証キー使用), Google翻訳で利用可能な言語たち:
+        //      "ID" (Indonesian), "KO" (Korean), "TR" (Turkish),
+        //      "UK" (Ukrainian),
+        //  DeepL翻訳(認証キー不使用), Google翻訳で利用可能な言語たち:
+        //      "EN" (English),
+        //          (* DeepL翻訳(認証キー使用)では "EN-GB" または "EN-US" )
+        //      "PT" (Portuguese),
+        //          (* DeepL翻訳(認証キー使用)では "PT-BR" または "PT-PT" )
+        //  DeepL翻訳(認証キー使用, 不使用)で利用可能な言語たち:
+        //      "ZH" (Chinese)
+        //          (* Google翻訳では "zh-cn" または "zh-tw" ),
+        //  DeepL翻訳(認証キー使用)でのみ利用可能な言語たち:
+        //      "EN-GB" (English (British)), "EN-US" (English (American)),
+        //          (* DeepL翻訳(認証キー不使用), Google翻訳では "en" )
+        //      "NB" (Norwegian),
+        //          (* Google翻訳では "no" )
+        //      "PT-BR" (Portuguese (Brazilian)), "PT-PT" (Portuguese (European)),
+        //          (* DeepL翻訳(認証キー不使用), Google翻訳では "pt")
+        //  Google翻訳でのみ利用可能な言語たち:
+        //      "af" (afrikaans), "sq" (albanian), "am" (amharic),
+        //      "ar" (arabic), "hy" (armenian), "az" (azerbaijani),
+        //      "eu" (basque), "be" (belarusian), "bn" (bengali),
+        //      "bs" (bosnian), "ca" (catalan), "ceb" (cebuano),
+        //      "ny" (chichewa),
+        //      "zh-cn" (chinese (simplified)), "zh-tw" (chinese (traditional)),
+        //          (* DeepL翻訳(認証キー使用, 不使用)では "ZH" )
+        //      "co" (corsican), "hr" (croatian), "eo" (esperanto),
+        //      "tl" (filipino), "fy" (frisian), "gl" (galician),
+        //      "ka" (georgian), "gu" (gujarati), "ht" (haitian creole),
+        //      "ha" (hausa), "haw" (hawaiian), "iw" (hebrew), "he" (hebrew),
+        //      "hi" (hindi), "hmn" (hmong), "is" (icelandic), "ig" (igbo),
+        //      "ga" (irish), "jw" (javanese), "kn" (kannada), "kk" (kazakh),
+        //      "km" (khmer), "ku" (kurdish (kurmanji)), "ky" (kyrgyz),
+        //      "lo" (lao), "la" (latin), "lb" (luxembourgish),
+        //      "mk" (macedonian), "mg" (malagasy), "ms" (malay),
+        //      "ml" (malayalam), "mt" (maltese), "mi" (maori), "mr" (marathi),
+        //      "mn" (mongolian), "my" (myanmar (burmese)), "ne" (nepali),
+        //      "no" (norwegian),
+        //          (* DeepL翻訳(認証キー使用)では "NB" )
+        //      "or" (odia), "ps" (pashto), "fa" (persian), "pa" (punjabi),
+        //      "sm" (samoan), "gd" (scots gaelic), "sr" (serbian),
+        //      "st" (sesotho), "sn" (shona), "sd" (sindhi), "si" (sinhala),
+        //      "so" (somali), "su" (sundanese), "sw" (swahili), "tg" (tajik),
+        //      "ta" (tamil), "te" (telugu), "th" (thai), "ur" (urdu),
+        //      "ug" (uyghur), "uz" (uzbek), "vi" (vietnamese), "cy" (welsh),
+        //      "xh" (xhosa), "yi" (yiddish), "yo" (yoruba), "zu" (zulu),
+        //      (* ほかにもあるが、本ボットでは未対応)
+        "toLanguages": {
+            // 既定の翻訳先言語(たち)
+            "defaults": ["JA", "", ],
+            // 翻訳元言語が既定の翻訳先言語であった場合の、代わりの翻訳先言語(たち)
+            "onesIfFromLanguageIsInDefaults": ["EN-US", "EN", "", ],
+        },
+        // 翻訳先メッセージへの追加文字列
+        "supplementsToTranslatedMessage": {
+            // 翻訳先メッセージの冒頭に送信したユーザー名を追加するか否か:
+            //  true (追加する), false (追加しない)
+            "senderUserName": true,
+            // 翻訳先メッセージの末尾に翻訳元と翻訳先の言語を追加するか否か:
+            //  true (追加する), false (追加しない)
+            "fromToLanguages": true,
+        },
+    },
 }
