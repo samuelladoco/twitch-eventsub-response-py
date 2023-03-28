@@ -18,14 +18,13 @@ class TERBot(commands.Bot):
     def __init__(self, _j: dict[str, Any], ) -> None:
         print(f'  Initializing bot ...')
         self.__j: dict[str, Any] = _j
-        self.__token: str = str(self.__j['bot']['oAuthAccessToken'])
-        self.__prefix = '<ter>_'
-        self.__pu: PartialUser | None = None
+        self.__token: str = str(self.__j['bot']['oAuthAccessToken']).strip()
+        self.__prefix: str = '<ter>_'
         self.__return_code: int = -1
         #
         broadcaster_user_name: str = str(
             self.__j['messageChannel']['broadcasterUserName']
-        )
+        ).casefold().strip()
         print(f"    Message channel user name = {broadcaster_user_name}")
         print(f'    Bot token length = {len(self.__token)}')
         super().__init__(  # type: ignore
@@ -51,33 +50,37 @@ class TERBot(commands.Bot):
     async def event_ready(self) -> None:
         print(f'  Making bot ready ...')
         assert self.user_id is not None, f'Bot user ID is unknown.'
+        print(f'    Bot user ID = {self.user_id}')
         assert self.nick is not None, f'Bot user name is unknown.'
-        self.__pu = self.create_user(self.user_id, self.nick)
-        print(f'    Bot user ID = {self.__pu.id}')
-        print(f'    Bot user name = {self.__pu.name}')
+        print(f'    Bot user name = {self.nick}')
         #
         print(f'    Bot commands')
         for c_name in self.commands.keys():
-            print(f'      {self.__prefix}{str(c_name)}')
+            print(f'      {self.__prefix}{c_name}')
         #
         print(f'    Bot cogs')
+        pu: PartialUser = self.create_user(self.user_id, self.nick)
         self.add_cog(
             TERRaidCog(
-                self, self.__token, self.__pu, self.__j['responses']['/raid'],
+                self.__token, pu, {}, self.__j['responses']['/raid'],
             )
         )
-        # ToDo: ★ 別のCogを開発した場合は、登録処理をここに実装する
-        # self.add_cog(
-        #     TER????Cog(
+        self.add_cog(
+            TERTransCog(
+                self.__token, pu, self.__j['translation'], [], self.__prefix,
+            )
+        )
         #
-        #     )
+        # ToDo: ★ (Cog) 別のCogを開発した場合は、登録処理をここに実装する
+        # self.add_cog(
+        #     TER????Cog(self.__token, pu, {}, [], )
         # )
         #
         for c in self.cogs.keys():
             print(f'      {c}')
         #
-        name_color: str = str(self.__j['bot']['nameColor'])
-        if name_color != 'DoNotChange':
+        name_color: str = str(self.__j['bot']['nameColor']).casefold().strip()
+        if name_color != 'doNotChange'.casefold().strip():
             print(f'    Setting bot name color = {name_color} ... ', end='', )
             #
             await self.update_chatter_color(
@@ -95,17 +98,20 @@ class TERBot(commands.Bot):
             f'/me bot for {self.__prefix} has joined and is ready.'
         )
 
+    async def event_command_error(self,
+        context: commands.Context, error: Exception
+    ) -> None:
+        return
+
     @commands.command(name='test', )
     async def __test(self, ctx: commands.Context):
-        print(f"  Testing bot (v{self.__j['ver_no']}) ...")
+        print(f"  Testing bot (v{str(self.__j['verNo']).casefold().strip()}) ...")
         print(f'    Channel name = {ctx.channel.name}')
-        assert self.__pu is not None, f'Bot user is not created.'
-        print(f'    Bot user ID = {self.__pu.id}')
-        print(f'    Bot user name = {self.__pu.name}')
+        print(f'    Bot user ID = {self.user_id}')
+        print(f'    Bot user name = {self.nick}')
         print(f'    Bot commands')
         for c_name in self.commands.keys():
-            print(f'      {self.__prefix}{str(c_name)}')
-        #
+            print(f'      {self.__prefix}{c_name}')
         print(f'    Bot cogs')
         for c_name in self.cogs.keys():
             print(f'      {c_name}')
@@ -116,7 +122,7 @@ class TERBot(commands.Bot):
 
     @commands.command(name='restart', )
     async def __restart(self, ctx: commands.Context):
-        ctx.message.content = f'{self._prefix}kill 3'
+        ctx.message.content = f'{self.__prefix}kill 3'
         #
         await self.__kill(ctx)
 
@@ -157,7 +163,7 @@ class TERBot(commands.Bot):
         if type(ctx.author) is Chatter:
             if ctx.author.is_broadcaster is True:
                 return True
-            elif ctx.author.id == str(self.user_id):
+            elif str(ctx.author.id) == str(self.user_id):
                 return True
             else:
                 return False
