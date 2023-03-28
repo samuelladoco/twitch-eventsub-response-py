@@ -16,44 +16,49 @@ from twitchio.ext import commands
 class TERBaseCog(commands.Cog):
 
     def __init__(self,
-        bot: commands.Bot,
-        _token: str,
-        _pu: PartialUser,
-        _cm_bases: list[list[Any]],
+        _token: str, _pu: PartialUser,
+        _settings_base: dict[str, Any],_response_cms_base: list[list[Any]],
     ) -> None:
-        self.bot: commands.Bot = bot
         self.__token: str = _token
         self.__pu: PartialUser = _pu
-        self.__cm_bases: list[list[Any]] = _cm_bases
+        self.__settings_base: dict[str, Any] = _settings_base
+        self.__response_cms_base: list[list[Any]] = _response_cms_base
 
-    def get_replaced_cm_units(self,
+    def get_settings_replaced(self,
+        _replacements: dict[str, str],
+    ) -> dict[str, Any]:
+        return _replace_recursively_d(self.__settings_base, _replacements)
+
+    def get_cm_units_replaced(self,
         _replacements: dict[str, str],
     ) -> list[TERCommandMessageUnit]:
         return [
             TERCommandMessageUnit(cm_base, _replacements, )
-            for cm_base in self.__cm_bases
+            for cm_base in self.__response_cms_base
         ]
 
     async def execute_cms(self,
-        _channel: Channel,
-        _cm_units: list[TERCommandMessageUnit],
+        _channel: Channel, _cm_units: list[TERCommandMessageUnit],
     ) -> None:
         index: int = 0
         q: queue.Queue[TERCommandMessageUnit] = queue.Queue()
         for cm_unit in [_cm_unit for _cm_unit in _cm_units]:
             q.put(cm_unit)
         #
+        #
         print(f'    Commands or messages')
         while q.empty() is False:
+            # 送信前の待機(秒)
             index += 1
             cm_unit: TERCommandMessageUnit = q.get()
             print(
                 f'      {index} (after {cm_unit.sleep_sec:>3} s.) = '
-                + f'{[cm_unit.cm_replaced] + cm_unit.args_replaced} ... ',
-                end=''
+                + f'{cm_unit.cm_replaced} (+ {cm_unit.args_replaced}) ... ',
+                end='', flush=True,
             )
             #
             await asyncio.sleep(cm_unit.sleep_sec)
+            #
             #
             # (コマンド) /shoutout メッセージ送信先チャンネルにレイドをしたユーザー
             if cm_unit.cm_replaced == '/shoutout':
@@ -63,14 +68,18 @@ class TERBaseCog(commands.Cog):
                         self.__token,
                         str(channel_broadcaster_user.id),
                         str(self.__pu.id),
-                        cm_unit.args_replaced[0]
+                        str(cm_unit.args_replaced[0])
                     )
                 except HTTPException as e:
                     print(f'failed.')
                     print(f'        {e}')
+                    num_retrials: int = (
+                        1 if len(cm_unit.args_replaced) < 3
+                        else int(cm_unit.args_replaced[2]) + 1
+                    )
                     cm_base: list[Any] = [
                         125, cm_unit.cm_replaced, cm_unit.args_replaced[0],
-                        '(Retry)',
+                        f'(Retrial)', num_retrials,
                     ]
                     q.put(TERCommandMessageUnit(cm_base, {}, ))
                     continue
@@ -91,8 +100,7 @@ class TERBaseCog(commands.Cog):
 class TERCommandMessageUnit:
 
     def __init__(self,
-        _cm_base: list[Any],
-        _replacements: dict[str, str],
+        _cm_base: list[Any], _replacements: dict[str, str],
     ) -> None:
         self.__sleep_sec: int = int(_cm_base[0])
         #
@@ -100,11 +108,9 @@ class TERCommandMessageUnit:
         for (rk, rv) in _replacements.items():
             self.__cm_replaced = self.__cm_replaced.replace(rk, rv)
         #
-        self.__args_replaced: list[str] = [str(a) for a in _cm_base[2:]]
-        for (rk, rv) in _replacements.items():
-            self.__args_replaced = [
-                arg_temp.replace(rk, rv) for arg_temp in self.__args_replaced
-            ]
+        self.__args_replaced: list[Any] = _replace_recursively_l(
+            [a for a in _cm_base[2:]], _replacements,
+        )
 
     @property
     def sleep_sec(self) -> int:
@@ -114,11 +120,58 @@ class TERCommandMessageUnit:
     def cm_replaced(self) -> str:
         return self.__cm_replaced
 
-    def extend_args_replaced(self, _args_to_add: list[str]) -> None:
+    def extend_args_replaced(self, _args_to_add: list[Any]) -> None:
         self.__args_replaced.extend(_args_to_add)
 
     @property
-    def args_replaced(self) -> list[str]:
+    def args_replaced(self) -> list[Any]:
         return self.__args_replaced
+# ----------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
+
+# Functions
+# -----------------------------------------------------------------------------
+# ----------------------------------------------------------------------
+def _replace_recursively_d(
+    d_base: dict[str, Any], _replacements: dict[str, str],
+) -> dict[str, Any]:
+    d_replaced: dict[str, Any] = {}
+    for k_vase, v_base in d_base.items():
+        v_replaced: Any
+        if isinstance(v_base, str) is True:
+            v_replaced = v_base
+            for (rk, rv) in _replacements.items():
+                v_replaced = v_replaced.replace(rk, rv)
+        elif isinstance(v_base, list) is True:
+            v_replaced = _replace_recursively_l(v_base, _replacements, )
+        elif isinstance(v_base, dict) is True:
+            v_replaced = _replace_recursively_d(v_base, _replacements, )
+        else:
+            v_replaced = v_base
+        d_replaced[k_vase.strip()] = v_replaced
+    return d_replaced
+# ----------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------
+def _replace_recursively_l(
+    l_base: list[Any], _replacements: dict[str, str],
+) -> list[Any]:
+    l_replaced: list[Any] = []
+    for e_base in l_base:
+        e_replaced: Any
+        if isinstance(e_base, str):
+            e_replaced = e_base
+            for (rk, rv) in _replacements.items():
+                e_replaced = e_replaced.replace(rk, rv)
+        elif isinstance(e_base, list) is True:
+            e_replaced = _replace_recursively_l(e_base, _replacements, )
+        elif isinstance(e_base, dict) is True:
+            e_replaced = _replace_recursively_d(e_base, _replacements, )
+        else:
+            e_replaced = e_base
+        l_replaced.append(e_replaced)
+    return l_replaced
 # ----------------------------------------------------------------------
 # -----------------------------------------------------------------------------

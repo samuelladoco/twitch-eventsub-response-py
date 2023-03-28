@@ -23,24 +23,32 @@ class TERRaidCog(TERBaseCog):
         if msg_id != 'raid':
             return
         #
+        #
         print(f'  Responding to raid ...')
         raid_broadcaster_user_name: str = tags.get('msg-param-login', '')
         print(f'    Raid broadcaster user name = {raid_broadcaster_user_name}')
         #
-        # 置換される文字列たちを定義
+        #
+        # コマンドやメッセージたち
+        #   置換される文字列たちを定義
         replacements: dict[str, str] = {
             '{{raidBroadcasterUserName}}': raid_broadcaster_user_name,
+            #
+            # ToDo: ★ (置換) 別の文字列置換にも対応する場合は、ここに実装する
+            # '{{????}}': '????'
         }
-        #
+        #   置換後のコマンドやメッセージたち
         cm_units_replaced: list[TERCommandMessageUnit] = (
-            self.get_replaced_cm_units(replacements, )
+            self.get_cm_units_replaced(replacements, )
         )
+        #
+        #
         cm_units_valid: list[TERCommandMessageUnit] = []
         for cm_unit in cm_units_replaced:
             # (コマンド) /shoutout の場合
             if cm_unit.cm_replaced == '/shoutout':
                 # レイド元のユーザー(チャンネル)IDを取得して利用
-                shoutout_broadcaster_user_id = str(tags.get('user-id', -1))
+                shoutout_broadcaster_user_id: str = str(tags.get('user-id', -1))
                 print(
                     f'    Shoutout broadcaster user ID = ' +
                     f'{shoutout_broadcaster_user_id}'
