@@ -1,11 +1,11 @@
-最終更新日：2023-03-10 (v1.0)
+最終更新日：2023-03-28 (v2.0)
 
 # Twitch EventSub Response Bot (twitch-eventsub-response-py)
 [Twitch](https://www.twitch.tv/) で配信中にレイドを受けたときに、それに応答して自動で「 `/shoutout レイド元のユーザー名` 」Twitch公式チャットコマンドの実行や、チャット欄に指定したメッセージを表示してくれる、ボットアプリです。
 
 百聞は一見に如かず、 **[本ボットの動作例](https://clips.twitch.tv/TriangularSoftSheepUncleNox-lFYplIHDARc_DMZC) をご覧ください** 。
 
-
+v2.0から **チャット翻訳機能** も搭載しています。設定方法は下記の [チャット翻訳機能の設定](#チャット翻訳機能の設定) を参照ください。
 
 
 ## 背景説明
@@ -24,7 +24,7 @@ Twitch配信のチャット欄に指定したメッセージを自動で表示�
 
 
 ## 本ボットの機能
-上記の背景を踏まえて、 **イベントに自動で応答し、かつ、上記以外の公式コマンドを実行させることのできるボット** を開発しました。本稿更新時点でサポートしている機能は以下です。
+このような背景を踏まえて、 **イベントに自動で応答し、かつ、上記以外の公式コマンドを実行させることのできるボット** を開発しました。本稿更新時点でサポートしている機能は以下です。
 
 | 応答タイミング | コマンド | 実行内容 |
 | :--- | :-- | :-- |
@@ -37,8 +37,6 @@ Twitch配信のチャット欄に指定したメッセージを自動で表示�
 ## 動作環境
 - .exeファイル版：たぶん、本稿更新時点でサポートされている Windows（64bit版） で動作
 - スクリプト版：たぶん、 Python 3.10 以降のPythonインタプリタで動作
-    - 必要な外部パッケージは `./Venvs/requirements.txt` に記載
-        - ただし `twitchio` は、本稿更新時点で最新のリリース版である `V2.5.0` ではなく最新の `master` ブランチを取ってくることが必須
 
 
 
@@ -46,7 +44,11 @@ Twitch配信のチャット欄に指定したメッセージを自動で表示�
 ## ダウンロード（インストール）方法
 - .exeファイル版：右にある Releases → 最新版の `twitch-eventsub-response-py-vX.Y.zip` ファイルをダウンロードして展開
     - `X.Y` の部分は数字
-- スクリプト版：右のReleasesからソースコードをダウンロードするなり、本リポジトリーをクローンするなりして、Pythonインタプリタを使って実行
+- スクリプト版：右のReleasesからソースコードをダウンロードするなり本リポジトリーをクローンするなりし、必要な外部パッケージをインストールしたうえで、Pythonインタプリタを使って実行
+    - 必要な外部パッケージは `./Venvs/requirements.txt` に記載
+        - ただし [DeepL Translate](https://github.com/ptrstn/deepl-translate) は、ソースコードをダウンロードし、 `deepl` となっている全ての箇所を `deepltranslate` に変更したうえでインストールすることが必要
+            - [DeepL Python Library](https://github.com/DeepLcom/deepl-python) とパッケージ名が競合するのを回避するため
+
 
 .exeファイル版は、ダウンロードするのに使用するブラウザーによってはウイルスの疑いありと判定され、ダウンロードが妨げられる可能性があります。その場合は、（もちろん本ボットはウイルスではないので）疑いを解除してダウンロードできるようにしてください。
 
@@ -80,7 +82,7 @@ Twitch配信のチャット欄に指定したメッセージを自動で表示�
 | `/shoutout` | `moderator:manage:shoutouts` | `/shoutout` 公式コマンドを実行できる |
 | `/color` | `user:manage:chat_color` | チャット欄で表示されるボットユーザー名の色を設定できる |
 | `（任意のメッセージ）` <br> `/me` | `chat:edit` | チャット欄に投稿できる |
-| （対応するものなし） | `chat:read` | チャット欄に接続できる |
+| （全般） | `chat:read` | チャット欄に接続できる |
 
 さて、トークン文字列を取得するのに外部サービスを利用すると、そのサービスはトークン文字列を知り得てしまうので、要求して承認された権限を悪用できてしまいます。なので、ここから先は **セキュリティー意識に応じてトークン文字列の取得方法を選んでください** 。
 
@@ -118,12 +120,12 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 まず、 `config.json5` ファイルを、テキストエディタ（メモ帳など）で開いてください。 `config.json5` は、ダウンロード時点では以下の内容になっています。
 
 ```
-// Twitch EventSub Response Bot - Config (v1.0--)
+// Twitch EventSub Response Bot - Config (v2.0--)
 {
     // メッセージ送信先となるチャンネルに関する設定たち
     "messageChannel": {
         // チャンネル配信者のユーザー名(チャンネルURLの末尾)
-        //  全て小文字でも、大文字と小文字が混在していても、どちらでも動く模様
+        //  (* 全て英小文字でも、英大文字と英小文字が混在していても、どちらでも可)
         "broadcasterUserName": "YourChannelName",
     },
     //
@@ -136,11 +138,10 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
         //
         // チャンネルで表示されるボットの名前の色:
         //  (* トークンが "user:manage:chat_color" 権限を持っていること)
-        //  blue, blue_violet, cadet_blue, chocolate, coral, dodger_blue,
-        //  firebrick, golden_rod, green, hot_pink, orange_red, red,
-        //  sea_green, spring_green, yellow_green
-        //  #RRGGBB (* Turboユーザーのみ),
-        //  DoNotChange (* 色を変えない)
+        //  "blue", "blue_violet", "cadet_blue", "chocolate", "coral",
+        //  "dodger_blue", "firebrick", "golden_rod", "green", "hot_pink",
+        //  "orange_red", "red", "sea_green", "spring_green", "yellow_green",
+        //  "#RRGGBB" (* Turboユーザーのみ設定可), "doNotChange" (* 色を変えない),
         "nameColor": "blue",
     },
     //
@@ -148,14 +149,14 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
     "responses": {
         // レイド
         "/raid": [
-            // コマンドやメッセージの中で置換される文字列:
+            // コマンドやメッセージの中で置換される文字列たち:
             //  {{raidBroadcasterUserName}} -> レイド元のユーザー名(チャンネルURLの末尾)
             //
             // [
             //  送信前の待機時間(秒),
             //  公式コマンド・メッセージ (* ユーザーコマンドを含む),
             //  (* 必要あれば追加情報1, 追加情報2, ...,)
-            // ]の組たち
+            // ] の組たち
             //  (* 上から順に1つずつ実行)
             //
             // メッセージ (* ユーザーコマンドを含む) の例
@@ -167,29 +168,204 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
             //      (* トークンが "moderator:manage:shoutouts" 権限を持っていること)
             [10, "/shoutout", ],
             //
+            // (* 公式コマンド・メッセージを実行しない場合は、
+            //  該当する [ ] の行を削除するか、行の頭に // を挿入(コメントアウト))
+            // [10, "Sample message", ],
+            //
             // (* ほかのコマンドは、要望があれば追加対応するかもしれません)
         ],
         //
         //  (* ほかのイベントは、要望があれば追加対応するかもしれません)
     },
     //
-    // (* ここは変更しないでください)
-    "ver_no": "Undefined",
+    // メッセージたちに対する翻訳に関する設定
+    "translation": {
+        // 使用する翻訳サービスたちと優先使用順位:
+        //  (* 翻訳できるまで、上に設定したサービスから順に使用する)
+        "serviceWithKeyOrURLs": [
+            // DeepL翻訳で、認証キーを使用しない場合 (* 不具合がなければ変更不要)
+            ["deeplTranslate", "https://www2.deepl.com/jsonrpc", ],
+            //
+            // Google翻訳で、通常の場合:
+            //  "translate.google.????/"
+            //      (* いずれかの国のURLを設定するが、不具合がなければ変更不要)
+            ["googleTrans", "translate.google.co.jp", ],
+            //
+            // (* サービスを使用しない場合は、
+            //  該当する [ ] の行を削除するか、行の頭に // を挿入(コメントアウト))
+            //
+            // DeepL翻訳で、認証キーを使用する場合
+            // ["deeplKey", "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx", ],
+            //
+            // Google翻訳で、 Google Apps Script (GAS) を使用する場合
+            //  "https://script.google.com/macros/s/????/exec" (* GASのURL)
+            // ["googleGAS", "https://script.google.com/macros/s/????/exec", ],
+        ],
+        // 翻訳元言語の判定に使用するサービス (* 不具合がなければ変更不要)
+        "fromLanguageDetection": "translate.google.co.jp",
+        // 翻訳しないメッセージ
+        "messagesToIgnore": {
+            // ユーザー名たち (* ボットとして運用するユーザーは記載がなくても翻訳しない)
+            //  (* 英大文字と英小文字が混在していても可)
+            "senderUserName": ["nightbot", "", ],
+            // メッセージの言語たち:
+            //  (* ノルウェー語, 中国語は、
+            //     DeepL翻訳とGoogle翻訳とで略称が異なるため、
+            //     これらの言語を設定する場合は両方の略称を併記するのがよい)
+            //  DeepL翻訳(認証キー使用, 不使用), Google翻訳すべてで利用可能な言語たち:
+            //      "BG" (Bulgarian), "CS" (Czech), "DA" (Danish),
+            //      "DE" (German), "EL" (Greek), "EN" (English), "ES" (Spanish),
+            //      "ET" (Estonian), "FI" (Finnish), "FR" (French),
+            //      "HU" (Hungarian), "IT" (Italian), "JA" (Japanese),
+            //      "LT" (Lithuanian), "LV" (Latvian), "NL" (Dutch),
+            //      "PL" (Polish), "PT" (Portuguese), "RO" (Romanian),
+            //      "RU" (Russian), "SK" (Slovak), "SL" (Slovenian),
+            //      "SV" (Swedish),
+            //  DeepL翻訳(認証キー使用), Google翻訳で利用可能な言語たち:
+            //      "ID" (Indonesian), "KO" (Korean), "TR" (Turkish),
+            //      "UK" (Ukrainian),
+            //  DeepL翻訳(認証キー使用, 不使用)で利用可能な言語たち:
+            //      "ZH" (Chinese)
+            //          (* Google翻訳では "zh-cn" または "zh-tw" ),
+            //  DeepL翻訳(認証キー使用)でのみ利用可能な言語たち:
+            //      "NB" (Norwegian),
+            //          (* Google翻訳では "no" )
+            //  Google翻訳でのみ利用可能な言語たち:
+            //      "af" (afrikaans), "sq" (albanian), "am" (amharic),
+            //      "ar" (arabic), "hy" (armenian), "az" (azerbaijani),
+            //      "eu" (basque), "be" (belarusian), "bn" (bengali),
+            //      "bs" (bosnian), "ca" (catalan), "ceb" (cebuano),
+            //      "ny" (chichewa),
+            //      "zh-cn" (chinese (simplified)), "zh-tw" (chinese (traditional)),
+            //          (* DeepL翻訳(認証キー使用, 不使用)では "ZH" )
+            //      "co" (corsican), "hr" (croatian), "eo" (esperanto),
+            //      "tl" (filipino), "fy" (frisian), "gl" (galician),
+            //      "ka" (georgian), "gu" (gujarati), "ht" (haitian creole),
+            //      "ha" (hausa), "haw" (hawaiian), "iw" (hebrew),
+            //      "he" (hebrew), "hi" (hindi), "hmn" (hmong),
+            //      "is" (icelandic), "ig" (igbo), "ga" (irish),
+            //      "jw" (javanese), "kn" (kannada), "kk" (kazakh),
+            //      "km" (khmer), "ku" (kurdish (kurmanji)), "ky" (kyrgyz),
+            //      "lo" (lao), "la" (latin), "lb" (luxembourgish),
+            //      "mk" (macedonian), "mg" (malagasy), "ms" (malay),
+            //      "ml" (malayalam), "mt" (maltese), "mi" (maori),
+            //      "mr" (marathi), "mn" (mongolian), "my" (myanmar (burmese)),
+            //      "ne" (nepali),
+            //      "no" (norwegian),
+            //          (* DeepL翻訳(認証キー使用)では "NB" )
+            //      "or" (odia), "ps" (pashto), "fa" (persian), "pa" (punjabi),
+            //      "sm" (samoan), "gd" (scots gaelic), "sr" (serbian),
+            //      "st" (sesotho), "sn" (shona), "sd" (sindhi),
+            //      "si" (sinhala), "so" (somali), "su" (sundanese),
+            //      "sw" (swahili), "tg" (tajik), "ta" (tamil), "te" (telugu),
+            //      "th" (thai), "ur" (urdu), "ug" (uyghur), "uz" (uzbek),
+            //      "vi" (vietnamese), "cy" (welsh), "xh" (xhosa),
+            //      "yi" (yiddish), "yo" (yoruba), "zu" (zulu),
+            //      (* ほかにもあるが、本ボットでは未対応)
+            "fromLanguages": ["", ],
+            // ユーザーコマンドの接頭辞たち (* "<ter>_" は記載がなくても翻訳しない)
+            "userCommandPrefixes": ["!", "", ],
+            // メッセージ内の文字列たち
+            "stringsInMessage": ["http", "", ],
+        },
+        // 翻訳先言語:
+        //  (* 英語, ノルウェー語, ポルトガル語, 中国語は、
+        //     DeepL翻訳(認証キー使用, 不使用)とGoogle翻訳とで略称が異なるため、
+        //     これらの言語を設定する場合は両方の略称を併記するのがよい)
+        //  DeepL翻訳(認証キー使用, 不使用), Google翻訳すべてで利用可能な言語たち:
+        //      "BG" (Bulgarian), "CS" (Czech), "DA" (Danish), "DE" (German),
+        //      "EL" (Greek), "ES" (Spanish), "ET" (Estonian), "FI" (Finnish),
+        //      "FR" (French), "HU" (Hungarian), "IT" (Italian),
+        //      "JA" (Japanese), "LT" (Lithuanian), "LV" (Latvian),
+        //      "NL" (Dutch), "PL" (Polish), "RO" (Romanian), "RU" (Russian),
+        //      "SK" (Slovak), "SL" (Slovenian), "SV" (Swedish),
+        //  DeepL翻訳(認証キー使用), Google翻訳で利用可能な言語たち:
+        //      "ID" (Indonesian), "KO" (Korean), "TR" (Turkish),
+        //      "UK" (Ukrainian),
+        //  DeepL翻訳(認証キー不使用), Google翻訳で利用可能な言語たち:
+        //      "EN" (English),
+        //          (* DeepL翻訳(認証キー使用)では "EN-GB" または "EN-US" )
+        //      "PT" (Portuguese),
+        //          (* DeepL翻訳(認証キー使用)では "PT-BR" または "PT-PT" )
+        //  DeepL翻訳(認証キー使用, 不使用)で利用可能な言語たち:
+        //      "ZH" (Chinese)
+        //          (* Google翻訳では "zh-cn" または "zh-tw" ),
+        //  DeepL翻訳(認証キー使用)でのみ利用可能な言語たち:
+        //      "EN-GB" (English (British)), "EN-US" (English (American)),
+        //          (* DeepL翻訳(認証キー不使用), Google翻訳では "en" )
+        //      "NB" (Norwegian),
+        //          (* Google翻訳では "no" )
+        //      "PT-BR" (Portuguese (Brazilian)), "PT-PT" (Portuguese (European)),
+        //          (* DeepL翻訳(認証キー不使用), Google翻訳では "pt")
+        //  Google翻訳でのみ利用可能な言語たち:
+        //      "af" (afrikaans), "sq" (albanian), "am" (amharic),
+        //      "ar" (arabic), "hy" (armenian), "az" (azerbaijani),
+        //      "eu" (basque), "be" (belarusian), "bn" (bengali),
+        //      "bs" (bosnian), "ca" (catalan), "ceb" (cebuano),
+        //      "ny" (chichewa),
+        //      "zh-cn" (chinese (simplified)), "zh-tw" (chinese (traditional)),
+        //          (* DeepL翻訳(認証キー使用, 不使用)では "ZH" )
+        //      "co" (corsican), "hr" (croatian), "eo" (esperanto),
+        //      "tl" (filipino), "fy" (frisian), "gl" (galician),
+        //      "ka" (georgian), "gu" (gujarati), "ht" (haitian creole),
+        //      "ha" (hausa), "haw" (hawaiian), "iw" (hebrew), "he" (hebrew),
+        //      "hi" (hindi), "hmn" (hmong), "is" (icelandic), "ig" (igbo),
+        //      "ga" (irish), "jw" (javanese), "kn" (kannada), "kk" (kazakh),
+        //      "km" (khmer), "ku" (kurdish (kurmanji)), "ky" (kyrgyz),
+        //      "lo" (lao), "la" (latin), "lb" (luxembourgish),
+        //      "mk" (macedonian), "mg" (malagasy), "ms" (malay),
+        //      "ml" (malayalam), "mt" (maltese), "mi" (maori), "mr" (marathi),
+        //      "mn" (mongolian), "my" (myanmar (burmese)), "ne" (nepali),
+        //      "no" (norwegian),
+        //          (* DeepL翻訳(認証キー使用)では "NB" )
+        //      "or" (odia), "ps" (pashto), "fa" (persian), "pa" (punjabi),
+        //      "sm" (samoan), "gd" (scots gaelic), "sr" (serbian),
+        //      "st" (sesotho), "sn" (shona), "sd" (sindhi), "si" (sinhala),
+        //      "so" (somali), "su" (sundanese), "sw" (swahili), "tg" (tajik),
+        //      "ta" (tamil), "te" (telugu), "th" (thai), "ur" (urdu),
+        //      "ug" (uyghur), "uz" (uzbek), "vi" (vietnamese), "cy" (welsh),
+        //      "xh" (xhosa), "yi" (yiddish), "yo" (yoruba), "zu" (zulu),
+        //      (* ほかにもあるが、本ボットでは未対応)
+        "toLanguages": {
+            // 既定の翻訳先言語(たち)
+            "defaults": ["JA", "", ],
+            // 翻訳元言語が既定の翻訳先言語であった場合の、代わりの翻訳先言語(たち)
+            "onesIfFromLanguageIsInDefaults": ["EN-US", "EN", "", ],
+        },
+        // 翻訳先メッセージへの追加文字列
+        "supplementsToTranslatedMessage": {
+            // 翻訳先メッセージの冒頭に送信したユーザー名を追加するか否か:
+            //  true (追加する), false (追加しない)
+            "senderUserName": true,
+            // 翻訳先メッセージの末尾に翻訳元と翻訳先の言語を追加するか否か:
+            //  true (追加する), false (追加しない)
+            "fromToLanguages": true,
+        },
+    },
 }
 ```
 
-そして、以下の箇所を、やりたいことに応じて変更して、上書き保存してください。
+
+#### 必須の設定
+`    // メッセージ送信先となるチャンネルに関する設定たち` および `    // イベントたちに対する応答たちに関する設定` 以降にある以下の箇所について、必要な変更をして、上書き保存してください。
 
 | 箇所 | 変更すべき部分 | 何に変更するか |
 | :--- | :-- | :-- |
 | `"broadcasterUserName": "YourChannelName"` | `YourChannelName` | 配信を行うユーザー名（チャンネルURLの末尾） |
-| `"oAuthAccessToken": "9y0urb0tuser0authacceesst0ken9"` | `9y0urb0tuser0authacceesst0ken9` | 上記の方法で取得したトークン文字列 |
-| `"nameColor": "blue"` | `blue` | 直上コメントの「名前の色」で候補として挙げられている色を表す文字列たちから1つ |
+| `"oAuthAccessToken": "9y0urb0tuser0authacceesst0ken9"` | `9y0urb0tuser0authacceesst0ken9` | 上記の [ボットとして運用するユーザーのユーザーアクセストークン文字列の取得](#ボットとして運用するユーザーのユーザーアクセストークン文字列の取得) で得たトークン文字列 |
+| `"nameColor": "blue"` | `blue` | 上の行の「名前の色」で候補として挙げられている、色を表す文字列たちから1つ |
+
+
+#### イベントに自動で応答する機能の設定
+`    // イベントたちに対する応答たちに関する設定` 以降にある以下の箇所を、やりたいことに応じて変更して、上書き保存してください。
+
+| 箇所 | 変更すべき部分 | 何に変更するか |
+| :--- | :-- | :-- |
 | `[ 5, "!raided {{raidBroadcasterUserName}}", ],` | `5`                                   | 順序が1つ前のコマンド・メッセージが実行されてから、表示したいメッセージが実行されるまで待機する時間（秒）（最初に実行されるコマンド・メッセージの場合は、レイドを受けてからの時間） |
 |                                                   | `!raided {{raidBroadcasterUserName}}` | 表示したいメッセージ（これを利用して、 **ユーザーコマンドも実行可能** ） |
-|                                                   | `[ 5, "!raided {{raidBroadcasterUserName}}", ],` | このメッセージを表示したくない場合は、行ごと削除 |
+|                                                   | `[ 5, "!raided {{raidBroadcasterUserName}}", ],` | このメッセージを表示したくない場合は、行ごと削除するか、行の頭に `//` を挿入（コメントアウト） |
 | `[10, "/shoutout", ],` | `10`                     | 順序が1つ前のコマンド・メッセージが実行されてから、 `/shoutout` 公式コマンドが実行されるまで待機する時間（秒） |
-|                          | `[10, "/shoutout", ],` | `/shoutout` 公式コマンドを実行したくない場合は、行ごと削除 |
+|                          | `[10, "/shoutout", ],` | `/shoutout` 公式コマンドを実行したくない場合は、行ごと削除するか、行の頭に `//` を挿入（コメントアウト） |
 
 例として `[ 5, "!raided {{raidBroadcasterUserName}}", ],` および `[10, "/shoutout", ],` の行を全く変更しない場合、レイドを受けたときに本ボットは以下の動作をします。
 - まず、5秒待機したのち、チャット欄に「 `!raided レイド元のユーザー名(チャンネル名)` 」というメッセージを表示
@@ -197,7 +373,19 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
         - 本ボットと [Nightbot](https://nightbot.tv/) を設定すれば、 **[Streamlabs](https://streamlabs.com/) ないし [StreamElements](https://streamelements.com/) といったサービス側の設定は不要**
 - 次に、10秒待機したのち、 `/shoutout レイド元のユーザー名` 公式コマンドを実行
 
+コマンド・メッセージの実行順序を変えたい場合は、 `[ ]` で囲まれた行の上下を入れ替えてください。
+
 `config.json5` の文字コードは、ダウンロード時点では `UTF-8（BOMなし）` ですが、上書き保存した際にほかの文字コードに変わってしまっても、問題なく動作するように作ったつもりです。
+
+
+#### チャット翻訳機能の設定
+`    // メッセージたちに対する翻訳に関する設定` 以降にある箇所を、やりたいことに応じて変更して、上書き保存してください。なお、初期設定のままでも、上記の [必須の設定](#必須の設定) を行っていれば、チャット翻訳機能は動作します。
+
+- 初期設定以外のチャット翻訳サービスを使用したい場合：
+    - DeepL翻訳で、認証キーを使用する場合： [DeepL翻訳の無料版APIキーの登録発行手順！世界一のAI翻訳サービスをAPI利用](https://auto-worker.com/blog/?p=5030) などを参考にして、キーを取得して入力したのち、行頭の `//` を削除（アンコメント）
+    - Google翻訳で、 Google Apps Script (GAS) を使用する場合： [Google翻訳APIを無料で作る方法](https://qiita.com/satto_sann/items/be4177360a0bc3691fdf) などを参考にして、翻訳スクリプトを作成・デプロイし、ウェブアプリのURLを取得して入力したのち、行頭の `//` を削除（アンコメント）
+        - 翻訳サービスたちの優先使用順に応じて、`[ ]` で囲まれた行の上下を入れ替え
+- チャット翻訳をしたくない場合： `["deeplTranslate", "https://www2.deepl.com/jsonrpc", ]` および `["googleTrans", "translate.google.co.jp", ]` を行ごと削除するか、行の頭に `//` を挿入（コメントアウト）
 
 
 
@@ -205,7 +393,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 ## 実行
 さあ、本ボットを使いましょう！
 
-なお、本ボットの起動や動作中であるかの確認が失敗する場合で、原因が上記で取得したトークン文字列であると推測される場合は、 ボットとして運用するユーザーでTwitchにログインし、「設定（アカウント設定）」の「 [リンク](https://www.twitch.tv/settings/connections) 」の「その他のリンク」から、トークン文字列取得に使用したサービスをいったん「リンク解除」し、もう一度上記の方法でトークン文字列を取得すると、解決するかもしれません。
+なお、本ボットの起動や動作中であるかの確認が失敗する場合で、原因が上記の [ボットとして運用するユーザーのユーザーアクセストークン文字列の取得](#ボットとして運用するユーザーのユーザーアクセストークン文字列の取得) で得たトークン文字列であると推測される場合は、 ボットとして運用するユーザーでTwitchにログインし、「設定（アカウント設定）」の「 [リンク](https://www.twitch.tv/settings/connections) 」の「その他のリンク」から、トークン文字列取得に使用したサービスをいったん「リンク解除」し、もう一度同じ方法でトークン文字列を取得すると、解決するかもしれません。
 - 「Twitch Chat OAuth Password Generator（Twitch Chat OAuth Token Generator）ウェブサービスが、トークン文字列を悪用しないと信じる場合」を選択したのであれば、リンク解除するサービス名は「Twitch Chat OAuth Token Generator」
 
 
@@ -225,7 +413,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、コンソール（黒い画面）に以下のようなメッセージが表示されます。
 
 ```
---- Twitch EventSub Response Bot (v1.0) ---
+--- Twitch EventSub Response Bot (v2.0) ---
 [Preprocess]
   JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-vX.Y\config.json5
     parsing this file ... done.
@@ -250,6 +438,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
       <ter>_test
     Bot cogs
       TERRaidCog
+      TERTransCog
     Setting bot name color = blue ... done.
   done.
 
@@ -263,7 +452,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、コンソール（黒い画面）に以下のようなメッセージが表示されます。
 
 ```
-  Testing bot (v1.0) ...
+  Testing bot (v2.0) ...
     Channel name = yourchannelname
     Bot user ID = 888888888
     Bot user name = yourbotusername
@@ -273,6 +462,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
       <ter>_test
     Bot cogs
       TERRaidCog
+      TERTransCog
   done.
 
 ```
@@ -283,7 +473,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 ### 再起動
 .exeファイル版で `run.bat` を実行して本ボットを起動していた場合、配信のチャット欄に「 `<ter>_restart` 」または「 `<ter>_kill 3` 」と入力すると、配信のチャット欄に「 YourBotUserName *bot for \<ter\>\_ has stopped.* 」と表示されたあと、本ボットが再起動します。
-- チャンネルの配信者またはボットとして利用するユーザーのみが実行可能
+- チャンネルの配信者またはボットとして使用するユーザーのみが実行可能
 
 
 
@@ -295,7 +485,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
     - スクリプト版：実行中の `./Code/main.py` スクリプトを停止
 - 配信のチャット欄から停止させる方法：チャット欄に「 `<ter>_kill` 」または「 `<ter>_kill (0から255の整数値)` 」と入力
     - **こちらをお勧め**
-    - チャンネルの配信者またはボットとして利用するユーザーのみが実行可能
+    - チャンネルの配信者またはボットとして使用するユーザーのみが実行可能
     - チャット欄に「 YourBotUserName *bot for \<ter\>\_ has stopped.* 」と表示
     - `(0から255の整数値)` を入力した場合、本アプリのリターンコードに設定
         - 入力しなかった場合、 リターンコードは `0`
@@ -327,21 +517,27 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 ## 今後の展開
 要望に応じて、本ボットで対応する公式コマンドやメッセージを増やしていければと思います。対応コマンドやメッセージが増えれば、例えば以下のようなことができるようになると予想します。
+- レイドを受けたときにレイド元のユーザーを自動でフォロー
 - 一定額以上のビッツをくれたユーザーやチャンネルポイントを使用したユーザーに対して自動でVIP権限を付与
-    - 本ボットのアプリ名には「 [EventSub](https://dev.twitch.tv/docs/eventsub/) 」とついていますが、開発の対象をそれ以外にも広げていきたみ
-- アンフォローしたユーザーを自動でバン（笑）
+    - 本ボットのアプリ名には「 [EventSub](https://dev.twitch.tv/docs/eventsub/) 」とついていますが、現在のところEventSub購読が必要な機能が一切実装されてないという
 
 
 
 
 ## バージョン履歴
+2023-03-28：v2.0
+- チャット翻訳機能を追加
+- `config.json5` の書式変更
+    - `translation` キーと値の追加
+
+
 2023-03-10：v1.0
 - .exeファイル版に `run.bat` を同こんし、こちらのほうを実行することを推奨するように変更
 - チャット欄で表示されるボットユーザー名の色を設定できなくなっていたのを修正
     - Twitch APIの仕様変更が原因と推測
 - `<ter>_restart` および `<ter>_kill 3` コマンドの追加
     - .exeファイル版で `run.bat` を実行して本ボットを起動していた場合、本ボットが再起動する機能
-        - チャンネルの配信者またはボットとして利用するユーザーのみが実行可能
+        - チャンネルの配信者またはボットとして使用するユーザーのみが実行可能
 - `/shoutout` 公式コマンドの実行に失敗した場合のリトライの回数制限を撤廃
 
 2023-03-08：v0.5
@@ -350,7 +546,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 2023-02-26：v0.4
 - `<ter>_kill` または `<ter>_kill (0から255の整数値)` コマンドの追加
     - 本ボットを停止させる機能
-        - チャンネルの配信者またはボットとして利用するユーザーのみが使用可能
+        - チャンネルの配信者またはボットとして使用するユーザーのみが使用可能
         - `(0から255の整数値)` を入力した場合、本アプリのリターンコードに設定
             - 入力しなかった場合、 リターンコードは `0`
 - `/shoutout` 公式コマンドの実行に失敗した場合に、2分5秒後にリトライする機能の追加
@@ -382,6 +578,8 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
         - 「1. The OAuth implicit code flow」
 - [Twitchでレイドされたときに自動でお礼と宣伝をする方法](https://naosan-rta.hatenablog.com/entry/2022/02/27/113227)
 - [チャット翻訳ちゃん](http://www.sayonari.com/trans_asr/trans.html)
+- [DeepL翻訳の無料版APIキーの登録発行手順！世界一のAI翻訳サービスをAPI利用](https://auto-worker.com/blog/?p=5030)
+- [Google翻訳APIを無料で作る方法](https://qiita.com/satto_sann/items/be4177360a0bc3691fdf)
 
 
 
