@@ -179,6 +179,8 @@ class TERTransCog(TERBaseCog):
             for s in self.__settings_replaced['messagesToIgnore']['stringsInMessage']
             if str(s).strip() != ''
         ]
+        #
+        #
         # 翻訳先言語
         #   既定
         self.__to_langs_default: list[str] = [
@@ -197,6 +199,8 @@ class TERTransCog(TERBaseCog):
             for tts in self.__to_langs_all.keys()
             if str(s).casefold().strip() in self.__to_langs_all[tts]
         ]
+        #
+        #
         # 翻訳先メッセージへの文字列追加
         #   翻訳元メッセージを送信したユーザー名
         self.__adds_sender_user_name: bool = (
@@ -213,7 +217,7 @@ class TERTransCog(TERBaseCog):
         #   翻訳サービスが全く設定されていない
         if len(self.__services) == 0:
             return
-        #   メッセージ送信者がボットのユーザーである
+        #   メッセージがボットによる反応によるものである
         if bool(message.echo) is True:
             return
         #
