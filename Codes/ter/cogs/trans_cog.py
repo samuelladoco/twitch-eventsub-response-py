@@ -5,7 +5,7 @@ import aiohttp
 import json
 from typing import Any
 #
-from twitchio import Message, PartialUser
+from twitchio import Chatter, Message, PartialUser
 from twitchio.ext import commands
 #
 import deepl
@@ -33,15 +33,8 @@ class TERTransCog(TERBaseCog):
         #
         #
         # 設定値
-        #   置換される文字列たちを定義
-        replacements: dict[str, str] = {
-            #
-            # ToDo: ★ (置換) 別の文字列置換にも対応する場合は、ここに実装する
-            # '{{????}}': '????'
-        }
-        #   置換後の設定値たち
         self.__settings_replaced: dict[str, Any] = (
-            self.get_settings_replaced(replacements, )
+            self.get_settings_replaced({}, )
         )
         #
         #
@@ -54,7 +47,7 @@ class TERTransCog(TERBaseCog):
         self.__translator_d_trans: deepl.Translator | None = None
         self.__translator_g_trans: googletrans.Translator | None = None
         self.__translator_g_session_url: tuple[aiohttp.ClientSession, str] | None = None
-        for service_with_key_or_url in self.__settings_replaced['serviceWithKeyOrURLs']:
+        for service_with_key_or_url in self.__settings_replaced['servicesWithKeyOrURL']:
             if isinstance(service_with_key_or_url, list) is False:
                 continue
             tts: TERTransService | None = TERTransService.get(
@@ -80,10 +73,10 @@ class TERTransCog(TERBaseCog):
                     ]
                 except deepl.exceptions.AuthorizationException as e:
                     print(
-                        f'      Getting translatable languages lists ' +
+                        f'        Getting translatable languages lists ' +
                         f'for {tts.name} failed.'
                     )
-                    print(f'        {e}')
+                    print(f'          {e}')
                     print(f'')
                     continue
             # DeepL Translate
@@ -113,10 +106,10 @@ class TERTransCog(TERBaseCog):
                     ]
                 except Exception as e:
                     print(
-                        f'      Getting translatable languages lists ' +
+                        f'        Getting translatable languages lists ' +
                         f'for {tts.name} failed.'
                     )
-                    print(f'        {e}')
+                    print(f'          {e}')
                     print(f'')
                     continue
             # Google Apps Script (GAS)
@@ -137,6 +130,7 @@ class TERTransCog(TERBaseCog):
             #
             self.__services.append(tts)
         #
+        #
         # 翻訳元言語の推定に使うための googleTrans
         self.__translator_g_detection: googletrans.Translator | None = None
         try:
@@ -147,16 +141,16 @@ class TERTransCog(TERBaseCog):
                     raise_exception=True,
                 )
         except Exception as e:
-            print(f'      Getting language detection function failed.')
-            print(f'        {e}')
+            print(f'        Getting language detection function failed.')
+            print(f'          {e}')
             print(f'')
         #
         #
-        # 翻訳しないメッセージ
+        # 翻訳しないメッセージたち
         #   送信したユーザーたち
         self.__sender_user_names_to_ignore: list[str] = [
             str(s).casefold().strip()
-            for s in self.__settings_replaced['messagesToIgnore']['senderUserName']
+            for s in self.__settings_replaced['messagesToIgnore']['senderUserNames']
             if str(s).casefold().strip() != ''
         ]
         #   翻訳元言語たち
@@ -181,8 +175,8 @@ class TERTransCog(TERBaseCog):
         ]
         #
         #
-        # 翻訳先言語
-        #   既定
+        # 翻訳先言語(たち)
+        #   既定(たち)
         self.__to_langs_default: list[str] = [
             str(s).casefold().strip()
             for s in self.__settings_replaced['toLanguages']['defaults']
@@ -192,7 +186,7 @@ class TERTransCog(TERBaseCog):
         if len(self.__to_langs_default) == 0:
             self.__services = []
             return
-        #   翻訳元言語が既定の翻訳先言語であった場合
+        #   翻訳元言語が既定の翻訳先言語であった場合(たち)
         self.__to_langs_if_from_lang_is_in_defaults: list[str] = [
             str(s).casefold().strip()
             for s in self.__settings_replaced['toLanguages']['onesIfFromLanguageIsInDefaults']
@@ -201,15 +195,10 @@ class TERTransCog(TERBaseCog):
         ]
         #
         #
-        # 翻訳先メッセージへの文字列追加
-        #   翻訳元メッセージを送信したユーザー名
-        self.__adds_sender_user_name: bool = (
-            self.__settings_replaced['supplementsToTranslatedMessage']['senderUserName']
-        )
-        #   翻訳元と翻訳先の言語
-        self.__adds_from_to_lang: bool = (
-            self.__settings_replaced['supplementsToTranslatedMessage']['fromToLanguages']
-        )
+        # 翻訳先メッセージの構成
+        self.__messages_format: str = str(
+            self.__settings_replaced['messagesFormat']
+        ).strip()
 
     @commands.Cog.event(event='event_message')  # type: ignore
     async def message_response(self, message: Message) -> None:
@@ -224,8 +213,14 @@ class TERTransCog(TERBaseCog):
         #
         # メッセージから文字列を除去
         #   左右空白
-        text_from_w_langs: str = (
+        text_from_w_service_langs: str = (
             '' if message.content is None else str(message.content).strip()
+        )
+        #   /me 公式コマンド実行時に付随してくるもの
+        text_from_w_service_langs = text_from_w_service_langs.removeprefix(
+            '\x01ACTION'
+        ).removesuffix(
+            '\x01'
         )
         #   エモート文字列たち
         if (
@@ -256,19 +251,31 @@ class TERTransCog(TERBaseCog):
                         ]
                     )
             #
+            # エモートの削除
             for emote_name in emote_names:
-                text_from_w_langs = text_from_w_langs.replace(emote_name, '')
+                text_from_w_service_langs = (
+                    text_from_w_service_langs.replace(emote_name, '')
+                )
         #   単語間を半角空白1つで統一
-        text_from_w_langs = ' '.join(text_from_w_langs.split())
+        text_from_w_service_langs = ' '.join(text_from_w_service_langs.split())
         #
         # (翻訳しない 2/6) メッセージが空になった
-        if text_from_w_langs == '':
+        if text_from_w_service_langs == '':
             return
+        #
         #
         # 送信者のユーザー名(小文字化済み, 左右空白除去済み)
         sender_user_name: str = (
             '' if message.author.name is None
             else str(message.author.name).casefold().strip()
+        )
+        # 送信者の表示名(左右空白除去済み)
+        sender_display_name: str = (
+            '' if type(message.author) is not Chatter
+            else (
+                '' if message.author.display_name is None
+                else str(message.author.display_name).strip()
+            )
         )
         #
         #
@@ -278,11 +285,13 @@ class TERTransCog(TERBaseCog):
             return
         #   メッセージの接頭辞が翻訳しないユーザーコマンドの接頭辞たちの中に含まれている
         for user_command_prefix_to_ignore in self.__user_command_prefixes_to_ignore:
-            if text_from_w_langs.startswith(user_command_prefix_to_ignore):
+            if text_from_w_service_langs.startswith(
+                user_command_prefix_to_ignore
+            ):
                 return
         #   メッセージに翻訳しない文字列たちのいずれかが含まれている
         for string_in_message_to_ignore in self.__strings_in_message_to_ignore:
-            if string_in_message_to_ignore in text_from_w_langs:
+            if string_in_message_to_ignore in text_from_w_service_langs:
                 return
         #
         #
@@ -290,9 +299,23 @@ class TERTransCog(TERBaseCog):
         text_to: str = ''
         lang_from: str | None = None
         lang_to: str | None = None
+        #   サービスのリスト
+        services: list[TERTransService] = self.__services
         index_service: int = 0
         services_to_be_removed: list[TERTransService] = []
-        while index_service < len(self.__services):
+        #       メッセージ内に指定があれば従う
+        text_from_w_langs: str = text_from_w_service_langs
+        service_and_text_froms: list[str] = text_from_w_langs.split(' = ')
+        if len(service_and_text_froms) >= 2:
+            tts: TERTransService | None = TERTransService.get(
+                service_and_text_froms[0].casefold().strip()
+            )
+            if tts in self.__services:
+                services = [tts]
+                text_from_w_langs = ' = '.join(service_and_text_froms[1:])
+        #
+        #   現在のサービス～最後のサービスまでの間でサービスの選択と翻訳
+        while index_service < len(services):
             # 翻訳元言語
             lang_from = None
             text_from_wo_langs: str = text_from_w_langs
@@ -300,10 +323,10 @@ class TERTransCog(TERBaseCog):
             lang_from_and_text_froms: list[str] = text_from_wo_langs.split(' > ')
             if len(lang_from_and_text_froms) >= 2:
                 # 対応言語を、現在のサービス～最後のサービスから探す
-                for i in range(index_service, len(self.__services)):
+                for i in range(index_service, len(services)):
                     if (
                         lang_from_and_text_froms[0].casefold().strip()
-                        in self.__from_langs_all[self.__services[i]]
+                        in self.__from_langs_all[services[i]]
                     ):
                         lang_from = lang_from_and_text_froms[0].casefold().strip()
                         text_from_wo_langs = ' > '.join(
@@ -315,7 +338,7 @@ class TERTransCog(TERBaseCog):
             #   独自で日本語, 中国語(簡体字), 中国語(繁体字)であるかそれ以外かを推定
             if lang_from is None:
                 lang_from = TERLang.detect_cj(
-                    text_from_wo_langs, self.__services[index_service],
+                    text_from_wo_langs, services[index_service],
                 )
             #   googleTrans を利用して推定
             if lang_from is None and self.__translator_g_detection is not None:
@@ -326,14 +349,14 @@ class TERTransCog(TERBaseCog):
                         ).lang
                     ).casefold().strip()
                     # 対応言語を、現在のサービス～最後のサービスから探す
-                    for i in range(index_service, len(self.__services)):
+                    for i in range(index_service, len(services)):
                         # googleTrans と現在のサービスとで言語名が違う場合は変換
                         lang_from_converted: str = TERLang.convert_from(
-                            lang_from_g_detection, self.__services[i],
+                            lang_from_g_detection, services[i],
                         )
                         if (
                             lang_from_converted
-                            in self.__from_langs_all[self.__services[i]]
+                            in self.__from_langs_all[services[i]]
                         ):
                             lang_from = lang_from_converted
                             index_service = i
@@ -341,7 +364,7 @@ class TERTransCog(TERBaseCog):
                     # ない場合は、現在のサービスを維持する
                 except Exception as e:
                     print(
-                        f'  Language detection of "{text_from_w_langs}" failed.'
+                        f'  Language detection of "{text_from_w_service_langs}" failed.'
                     )
                     print(f'    {e}')
                     print(f'')
@@ -356,10 +379,10 @@ class TERTransCog(TERBaseCog):
             text_from_and_lang_tos: list[str] = text_from_wo_langs.split(' > ')
             if len(text_from_and_lang_tos) >= 2:
                 # 対応言語を、現在のサービス～最後のサービスから探す
-                for i in range(index_service, len(self.__services)):
+                for i in range(index_service, len(services)):
                     if (
                         text_from_and_lang_tos[-1].casefold().strip()
-                        in self.__to_langs_all[self.__services[i]]
+                        in self.__to_langs_all[services[i]]
                     ):
                         lang_to = text_from_and_lang_tos[-1].casefold().strip()
                         text_from_wo_langs = ' > '.join(
@@ -372,11 +395,9 @@ class TERTransCog(TERBaseCog):
             if lang_to is None:
                 is_service_found: bool = False
                 # 対応言語を、現在のサービス～最後のサービスから探す
-                for i in range(index_service, len(self.__services)):
+                for i in range(index_service, len(services)):
                     for to_lang_default in self.__to_langs_default:
-                        if to_lang_default in (
-                            self.__to_langs_all[self.__services[i]]
-                        ):
+                        if to_lang_default in self.__to_langs_all[services[i]]:
                             lang_to = to_lang_default
                             index_service = i
                             is_service_found = True
@@ -390,11 +411,9 @@ class TERTransCog(TERBaseCog):
                 lang_to = None
                 is_service_found: bool = False
                 # 対応言語を、現在のサービス～最後のサービスから探す
-                for i in range(index_service, len(self.__services)):
+                for i in range(index_service, len(services)):
                     for to_lang_if in self.__to_langs_if_from_lang_is_in_defaults:
-                        if to_lang_if in (
-                            self.__to_langs_all[self.__services[i]]
-                        ):
+                        if to_lang_if in self.__to_langs_all[services[i]]:
                             lang_to = to_lang_if
                             index_service = i
                             is_service_found = True
@@ -410,25 +429,19 @@ class TERTransCog(TERBaseCog):
             #
             # 現在のサービスで非対応の言語ならば次のサービスへ
             is_translatable: bool = True
-            if (
-                lang_from
-                not in self.__from_langs_all[self.__services[index_service]]
-            ):
+            if lang_from not in self.__from_langs_all[services[index_service]]:
                 # DeepL Translate は lang_from が None の場合に非対応
                 if (
-                    self.__services[index_service] is TERTransService.DEEPLTRANSLATE
+                    services[index_service] is TERTransService.DEEPLTRANSLATE
                     or lang_from is not None
                 ):
                     is_translatable = False
-            if (
-                lang_to
-                not in self.__to_langs_all[self.__services[index_service]]
-            ):
+            if lang_to not in self.__to_langs_all[services[index_service]]:
                 is_translatable = False
             if is_translatable is False:
                 print(
-                    f'  {self.__services[index_service]} cannot translate ' +
-                    f'"{text_from_w_langs}" from {lang_from} to {lang_to}.'
+                    f'  {services[index_service]} cannot translate ' +
+                    f'"{text_from_w_service_langs}" from {lang_from} to {lang_to}.'
                 )
                 print(f'')
                 index_service += 1
@@ -437,9 +450,9 @@ class TERTransCog(TERBaseCog):
             # 翻訳処理
             try:
                 # DeepL Python Library
-                if self.__services[index_service] is TERTransService.DEEPLKEY:
+                if services[index_service] is TERTransService.DEEPLKEY:
                     assert self.__translator_d_trans is not None, (
-                        f'{self.__services[index_service]} is not available.'
+                        f'{services[index_service]} is not available.'
                     )
                     if lang_from is not None:
                         lang_from = lang_from.upper()
@@ -467,9 +480,9 @@ class TERTransCog(TERBaseCog):
                         assert False, f'{r_or_rs}([0]) is not deepl.TextResult.'
                     break
                 # DeepL Translate
-                elif self.__services[index_service] is TERTransService.DEEPLTRANSLATE:
+                elif services[index_service] is TERTransService.DEEPLTRANSLATE:
                     assert lang_from is not None, (
-                        f'{self.__services[index_service]} is not available.'
+                        f'{services[index_service]} is not available.'
                     )
                     lang_from = lang_from.upper()
                     lang_to = lang_to.upper()
@@ -480,9 +493,9 @@ class TERTransCog(TERBaseCog):
                     )
                     break
                 # Googletrans
-                elif self.__services[index_service] is TERTransService.GOOGLETRANS:
+                elif services[index_service] is TERTransService.GOOGLETRANS:
                     assert self.__translator_g_trans is not None, (
-                        f'{self.__services[index_service]} is not available.'
+                        f'{services[index_service]} is not available.'
                     )
                     r: googletrans.models.Translated = (
                         self.__translator_g_trans.translate(
@@ -495,9 +508,9 @@ class TERTransCog(TERBaseCog):
                     lang_from = str(r.src).casefold().strip()
                     break
                 # Google Apps Script (GAS)
-                elif self.__services[index_service] is TERTransService.GOOGLEGAS:
+                elif services[index_service] is TERTransService.GOOGLEGAS:
                     assert self.__translator_g_session_url is not None, (
-                        f'{self.__services[index_service]} is not available.'
+                        f'{services[index_service]} is not available.'
                     )
                     p: str = f'text={text_from_wo_langs}'
                     if lang_from is not None:
@@ -520,13 +533,13 @@ class TERTransCog(TERBaseCog):
                     break
                 else:
                     assert False, (
-                        f'Translation service is {self.__services[index_service]}.'
+                        f'Translation service is {services[index_service]}.'
                     )
             except Exception as e:
-                services_to_be_removed.append(self.__services[index_service])
+                services_to_be_removed.append(services[index_service])
                 print(
-                    f'  Translation of "{text_from_w_langs}" ' +
-                    f'by {self.__services[index_service]} failed.'
+                    f'  Translation of "{text_from_w_service_langs}" ' +
+                    f'by {services[index_service]} failed.'
                 )
                 print(f'    {e}')
                 print(f'')
@@ -542,15 +555,23 @@ class TERTransCog(TERBaseCog):
             return
         #
         #
-        # 翻訳先メッセージへの文字列追加
-        #   翻訳元メッセージを送信したユーザー名
-        if self.__adds_sender_user_name is True:
-            text_to = f'{sender_user_name}: {text_to}'
-        #   翻訳元と翻訳先の言語
-        if self.__adds_from_to_lang is True:
-            text_to = f'{text_to} ({lang_from} > {lang_to})'
+        # 置換される文字列たちを定義
+        replacements: dict[str, str] = {
+            '{{senderUserName}}': sender_user_name,
+            '{{senderDisplayName}}': sender_display_name,
+            '{{toMessage}}': text_to,
+            '{{fromLanguage}}': str(lang_from),
+            '{{toLanguage}}': str(lang_to),
+            #
+            # ToDo: ★ (置換) 別の文字列置換にも対応する場合は、ここに実装する
+            # '{{????}}': '????',
+        }
+        # 置換後の翻訳先メッセージ
+        m: str = self.__messages_format
+        for k, v in replacements.items():
+            m = m.replace(k, v)
         #
         #
-        await message.channel.send(f'/me {text_to}')
+        await message.channel.send(f'/me {m}')
 # ----------------------------------------------------------------------
 # -----------------------------------------------------------------------------

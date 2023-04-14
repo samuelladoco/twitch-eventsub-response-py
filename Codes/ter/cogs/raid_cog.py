@@ -35,7 +35,7 @@ class TERRaidCog(TERBaseCog):
             '{{raidBroadcasterUserName}}': raid_broadcaster_user_name,
             #
             # ToDo: ★ (置換) 別の文字列置換にも対応する場合は、ここに実装する
-            # '{{????}}': '????'
+            # '{{????}}': '????',
         }
         #   置換後のコマンドやメッセージたち
         cm_units_replaced: list[TERCommandMessageUnit] = (

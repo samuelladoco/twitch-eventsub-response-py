@@ -19,6 +19,7 @@ class TERBaseCog(commands.Cog):
         _token: str, _pu: PartialUser,
         _settings_base: dict[str, Any],_response_cms_base: list[list[Any]],
     ) -> None:
+        print(f'      {self.name}')
         self.__token: str = _token
         self.__pu: PartialUser = _pu
         self.__settings_base: dict[str, Any] = _settings_base

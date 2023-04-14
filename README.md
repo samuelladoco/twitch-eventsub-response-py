@@ -1,11 +1,14 @@
-最終更新日：2023-03-28 (v2.0)
+最終更新日：2023-04-14 (v3.0.0)
 
 # Twitch EventSub Response Bot (twitch-eventsub-response-py)
 [Twitch](https://www.twitch.tv/) で配信中にレイドを受けたときに、それに応答して自動で「 `/shoutout レイド元のユーザー名` 」Twitch公式チャットコマンドの実行や、チャット欄に指定したメッセージを表示してくれる、ボットアプリです。
 
 百聞は一見に如かず、 **[本ボットの動作例](https://clips.twitch.tv/TriangularSoftSheepUncleNox-lFYplIHDARc_DMZC) をご覧ください** 。
 
-v2.0から **チャット翻訳機能** も搭載しています。設定方法は下記の [チャット翻訳機能の設定](#チャット翻訳機能の設定) を参照ください。
+v3.0.0から **チャットメッセージの [棒読みちゃん](https://chi.usamimi.info/Program/Application/BouyomiChan/) への受け渡し機能** も搭載しています。 **Twitch以外のサイトに同時配信していなければ** 、 [わんコメ](https://onecomme.com/) ・ [マルチコメントビューア](https://ryu-s.github.io/app/multicommentviewer) ・ [Tubeyomi](https://sites.google.com/site/suzuniwa/tools/tubeyomi) などを併用せずに本ボットと [棒読みちゃん](https://chi.usamimi.info/Program/Application/BouyomiChan/) だけで、チャットに送信されたメッセージを読み上げできます。設定方法は下記の [棒読みちゃん連携機能の設定](#棒読みちゃん連携機能の設定) を参照ください。
+
+v2.0から **チャットメッセージの翻訳機能** も搭載しています。 [チャット翻訳ちゃん](http://www.sayonari.com/trans_asr/trans.html) を併用せずに本ボットだけで、チャットに送信されたメッセージを翻訳できます。設定方法は下記の [チャット翻訳機能の設定](#チャット翻訳機能の設定) を参照ください。
+
 
 
 ## 背景説明
@@ -42,8 +45,8 @@ Twitch配信のチャット欄に指定したメッセージを自動で表示�
 
 
 ## ダウンロード（インストール）方法
-- .exeファイル版：右にある Releases → 最新版の `twitch-eventsub-response-py-vX.Y.zip` ファイルをダウンロードして展開
-    - `X.Y` の部分は数字
+- .exeファイル版：右にある Releases → 最新版の `twitch-eventsub-response-py-vX.Y.Z.zip` ファイルをダウンロードして展開
+    - `X.Y.Z` の部分は数字
 - スクリプト版：右のReleasesからソースコードをダウンロードするなり本リポジトリーをクローンするなりし、必要な外部パッケージをインストールしたうえで、Pythonインタプリタを使って実行
     - 必要な外部パッケージは `./Venvs/requirements.txt` に記載
         - ただし [DeepL Translate](https://github.com/ptrstn/deepl-translate) は、ソースコードをダウンロードし、 `deepl` となっている全ての箇所を `deepltranslate` に変更したうえでインストールすることが必要
@@ -120,23 +123,23 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 まず、 `config.json5` ファイルを、テキストエディタ（メモ帳など）で開いてください。 `config.json5` は、ダウンロード時点では以下の内容になっています。
 
 ```
-// Twitch EventSub Response Bot - Config (v2.0--)
+// Twitch EventSub Response Bot - Config (v3.0.0--)
 {
-    // メッセージ送信先となるチャンネルに関する設定たち
+    // ■ メッセージ送信先となるチャンネルに関する設定たち
     "messageChannel": {
         // チャンネル配信者のユーザー名(チャンネルURLの末尾)
         //  (* 全て英小文字でも、英大文字と英小文字が混在していても、どちらでも可)
-        "broadcasterUserName": "YourChannelName",
+        "broadcasterUserName": "yourchannelname",
     },
     //
-    // メッセージ送信を行うボットに関する設定たち
+    // ■ メッセージ送信を行うボットに関する設定たち
     "bot": {
         // ボットとして運用するユーザーのOAuthアクセストークン
         //  (* 使う機能が要求する権限をボットとなるユーザーが持っていること)
         //  (* 使う機能が要求する権限をトークンが持っていること)
         "oAuthAccessToken": "9y0urb0tuser0authacceesst0ken9",
         //
-        // チャンネルで表示されるボットの名前の色:
+        // チャンネルで表示されるボットの名前の色
         //  (* トークンが "user:manage:chat_color" 権限を持っていること)
         //  "blue", "blue_violet", "cadet_blue", "chocolate", "coral",
         //  "dodger_blue", "firebrick", "golden_rod", "green", "hot_pink",
@@ -145,54 +148,53 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
         "nameColor": "blue",
     },
     //
-    // イベントたちに対する応答たちに関する設定
+    // ■ イベントたちに対する応答たちに関する設定
     "responses": {
         // レイド
         "/raid": [
-            // コマンドやメッセージの中で置換される文字列たち:
-            //  {{raidBroadcasterUserName}} -> レイド元のユーザー名(チャンネルURLの末尾)
-            //
             // [
-            //  送信前の待機時間(秒),
-            //  公式コマンド・メッセージ (* ユーザーコマンドを含む),
+            //  送信前の待機時間(秒), 公式コマンド・メッセージ (* ユーザーコマンドを含む),
             //  (* 必要あれば追加情報1, 追加情報2, ...,)
             // ] の組たち
             //  (* 上から順に1つずつ実行)
             //
+            // コマンドやメッセージの中で置換される文字列たち
+            //  {{raidBroadcasterUserName}} -> レイド元のユーザー名(チャンネルURLの末尾)
+            //
             // メッセージ (* ユーザーコマンドを含む) の例
             [ 5, "!raided {{raidBroadcasterUserName}}", ],
             //
-            // コマンドの例
+            // 公式コマンドの例
             //  /shoutout
             //      (* ボットとなるユーザーが モデレーター 以上であること)
             //      (* トークンが "moderator:manage:shoutouts" 権限を持っていること)
             [10, "/shoutout", ],
             //
             // (* 公式コマンド・メッセージを実行しない場合は、
-            //  該当する [ ] の行を削除するか、行の頭に // を挿入(コメントアウト))
+            //    該当する [ ] の行を削除するか、行の頭に // を挿入(コメントアウト))
             // [10, "Sample message", ],
             //
-            // (* ほかのコマンドは、要望があれば追加対応するかもしれません)
+            // (* ほかのコマンドは、要望があれば追加対応するかも)
         ],
         //
-        //  (* ほかのイベントは、要望があれば追加対応するかもしれません)
+        //  (* ほかのイベントは、要望があれば追加対応するかも)
     },
     //
-    // メッセージたちに対する翻訳に関する設定
+    // ■ メッセージたちに対する翻訳に関する設定
     "translation": {
-        // 使用する翻訳サービスたちと優先使用順位:
-        //  (* 翻訳できるまで、上に設定したサービスから順に使用する)
-        "serviceWithKeyOrURLs": [
+        // 使用する翻訳サービスたちと優先使用順位
+        //  (* 各メッセージについて、翻訳できるまで、上に設定したサービスから順に使用)
+        "servicesWithKeyOrURL": [
             // DeepL翻訳で、認証キーを使用しない場合 (* 不具合がなければ変更不要)
             ["deeplTranslate", "https://www2.deepl.com/jsonrpc", ],
             //
-            // Google翻訳で、通常の場合:
+            // Google翻訳で、 Google アカウント にひも付いた設定を必要としない場合
             //  "translate.google.????/"
             //      (* いずれかの国のURLを設定するが、不具合がなければ変更不要)
             ["googleTrans", "translate.google.co.jp", ],
             //
             // (* サービスを使用しない場合は、
-            //  該当する [ ] の行を削除するか、行の頭に // を挿入(コメントアウト))
+            //    該当する [ ] の行を削除するか、行の頭に // を挿入(コメントアウト))
             //
             // DeepL翻訳で、認証キーを使用する場合
             // ["deeplKey", "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx", ],
@@ -201,18 +203,23 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
             //  "https://script.google.com/macros/s/????/exec" (* GASのURL)
             // ["googleGAS", "https://script.google.com/macros/s/????/exec", ],
         ],
+        //
         // 翻訳元言語の判定に使用するサービス (* 不具合がなければ変更不要)
         "fromLanguageDetection": "translate.google.co.jp",
-        // 翻訳しないメッセージ
+        //
+        // 翻訳しないメッセージたち
         "messagesToIgnore": {
-            // ユーザー名たち (* ボットとして運用するユーザーは記載がなくても翻訳しない)
+            // 送信ユーザー名たち
             //  (* 英大文字と英小文字が混在していても可)
-            "senderUserName": ["nightbot", "", ],
-            // メッセージの言語たち:
+            //  (* ボットとして運用するユーザーについては、ここに記載がない場合、
+            //     手動で投稿したメッセージたちは翻訳を実行)
+            "senderUserNames": ["nightbot", "", ],
+            //
+            // 翻訳元言語たち
             //  (* ノルウェー語, 中国語は、
             //     DeepL翻訳とGoogle翻訳とで略称が異なるため、
             //     これらの言語を設定する場合は両方の略称を併記するのがよい)
-            //  DeepL翻訳(認証キー使用, 不使用), Google翻訳すべてで利用可能な言語たち:
+            //  DeepL翻訳(認証キー使用, 不使用), Google翻訳すべてで利用可能な言語たち
             //      "BG" (Bulgarian), "CS" (Czech), "DA" (Danish),
             //      "DE" (German), "EL" (Greek), "EN" (English), "ES" (Spanish),
             //      "ET" (Estonian), "FI" (Finnish), "FR" (French),
@@ -221,16 +228,16 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
             //      "PL" (Polish), "PT" (Portuguese), "RO" (Romanian),
             //      "RU" (Russian), "SK" (Slovak), "SL" (Slovenian),
             //      "SV" (Swedish),
-            //  DeepL翻訳(認証キー使用), Google翻訳で利用可能な言語たち:
+            //  DeepL翻訳(認証キー使用), Google翻訳で利用可能な言語たち
             //      "ID" (Indonesian), "KO" (Korean), "TR" (Turkish),
             //      "UK" (Ukrainian),
-            //  DeepL翻訳(認証キー使用, 不使用)で利用可能な言語たち:
+            //  DeepL翻訳(認証キー使用, 不使用)で利用可能な言語たち
             //      "ZH" (Chinese)
             //          (* Google翻訳では "zh-cn" または "zh-tw" ),
-            //  DeepL翻訳(認証キー使用)でのみ利用可能な言語たち:
+            //  DeepL翻訳(認証キー使用)でのみ利用可能な言語たち
             //      "NB" (Norwegian),
             //          (* Google翻訳では "no" )
-            //  Google翻訳でのみ利用可能な言語たち:
+            //  Google翻訳でのみ利用可能な言語たち
             //      "af" (afrikaans), "sq" (albanian), "am" (amharic),
             //      "ar" (arabic), "hy" (armenian), "az" (azerbaijani),
             //      "eu" (basque), "be" (belarusian), "bn" (bengali),
@@ -263,41 +270,44 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
             //      "yi" (yiddish), "yo" (yoruba), "zu" (zulu),
             //      (* ほかにもあるが、本ボットでは未対応)
             "fromLanguages": ["", ],
-            // ユーザーコマンドの接頭辞たち (* "<ter>_" は記載がなくても翻訳しない)
+            //
+            // ユーザーコマンドの接頭辞たち (* "<ter>_" は記載がなくても翻訳を不実行)
             "userCommandPrefixes": ["!", "", ],
-            // メッセージ内の文字列たち
+            //
+            // メッセージ内に含まれる文字列たち
             "stringsInMessage": ["http", "", ],
         },
-        // 翻訳先言語:
+        //
+        // 翻訳先言語(たち)
         //  (* 英語, ノルウェー語, ポルトガル語, 中国語は、
         //     DeepL翻訳(認証キー使用, 不使用)とGoogle翻訳とで略称が異なるため、
         //     これらの言語を設定する場合は両方の略称を併記するのがよい)
-        //  DeepL翻訳(認証キー使用, 不使用), Google翻訳すべてで利用可能な言語たち:
+        //  DeepL翻訳(認証キー使用, 不使用), Google翻訳すべてで利用可能な言語たち
         //      "BG" (Bulgarian), "CS" (Czech), "DA" (Danish), "DE" (German),
         //      "EL" (Greek), "ES" (Spanish), "ET" (Estonian), "FI" (Finnish),
         //      "FR" (French), "HU" (Hungarian), "IT" (Italian),
         //      "JA" (Japanese), "LT" (Lithuanian), "LV" (Latvian),
         //      "NL" (Dutch), "PL" (Polish), "RO" (Romanian), "RU" (Russian),
         //      "SK" (Slovak), "SL" (Slovenian), "SV" (Swedish),
-        //  DeepL翻訳(認証キー使用), Google翻訳で利用可能な言語たち:
+        //  DeepL翻訳(認証キー使用), Google翻訳で利用可能な言語たち
         //      "ID" (Indonesian), "KO" (Korean), "TR" (Turkish),
         //      "UK" (Ukrainian),
-        //  DeepL翻訳(認証キー不使用), Google翻訳で利用可能な言語たち:
+        //  DeepL翻訳(認証キー不使用), Google翻訳で利用可能な言語たち
         //      "EN" (English),
         //          (* DeepL翻訳(認証キー使用)では "EN-GB" または "EN-US" )
         //      "PT" (Portuguese),
         //          (* DeepL翻訳(認証キー使用)では "PT-BR" または "PT-PT" )
-        //  DeepL翻訳(認証キー使用, 不使用)で利用可能な言語たち:
+        //  DeepL翻訳(認証キー使用, 不使用)で利用可能な言語たち
         //      "ZH" (Chinese)
         //          (* Google翻訳では "zh-cn" または "zh-tw" ),
-        //  DeepL翻訳(認証キー使用)でのみ利用可能な言語たち:
+        //  DeepL翻訳(認証キー使用)でのみ利用可能な言語たち
         //      "EN-GB" (English (British)), "EN-US" (English (American)),
         //          (* DeepL翻訳(認証キー不使用), Google翻訳では "en" )
         //      "NB" (Norwegian),
         //          (* Google翻訳では "no" )
         //      "PT-BR" (Portuguese (Brazilian)), "PT-PT" (Portuguese (European)),
         //          (* DeepL翻訳(認証キー不使用), Google翻訳では "pt")
-        //  Google翻訳でのみ利用可能な言語たち:
+        //  Google翻訳でのみ利用可能な言語たち
         //      "af" (afrikaans), "sq" (albanian), "am" (amharic),
         //      "ar" (arabic), "hy" (armenian), "az" (azerbaijani),
         //      "eu" (basque), "be" (belarusian), "bn" (bengali),
@@ -329,35 +339,94 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
         "toLanguages": {
             // 既定の翻訳先言語(たち)
             "defaults": ["JA", "", ],
+            //
             // 翻訳元言語が既定の翻訳先言語であった場合の、代わりの翻訳先言語(たち)
             "onesIfFromLanguageIsInDefaults": ["EN-US", "EN", "", ],
         },
-        // 翻訳先メッセージへの追加文字列
-        "supplementsToTranslatedMessage": {
-            // 翻訳先メッセージの冒頭に送信したユーザー名を追加するか否か:
-            //  true (追加する), false (追加しない)
-            "senderUserName": true,
-            // 翻訳先メッセージの末尾に翻訳元と翻訳先の言語を追加するか否か:
-            //  true (追加する), false (追加しない)
-            "fromToLanguages": true,
+        //
+        // 翻訳先メッセージの構成
+        //
+        // 翻訳先メッセージの中で置換される文字列たち
+        //  {{senderUserName}} -> 送信ユーザー名(チャンネルURLの末尾)
+        //  {{senderDisplayName}} -> 送信ユーザーの表示名
+        //  {{toMessage}} -> 翻訳された送信ユーザーのメッセージ
+        //  {{fromLanguage}} -> 翻訳元言語
+        //  {{toLanguage}} -> 翻訳先言語
+        "messagesFormat": "{{senderUserName}}: {{toMessage}} ({{fromLanguage}} > {{toLanguage}})",
+    },
+    //
+    // ■ メッセージたちの 棒読みちゃん への受け渡しに関する設定
+    "bouyomiChan": {
+        // メッセージたちを受け渡すか否か
+        //  true (受け渡す), false (受け渡さない)
+        "sendsMessages": false,
+        //
+        // 本ボット起動時に、自動で 棒読みちゃん を起動させる場合の、
+        // 棒読みちゃん の実行ファイルの絶対パス
+        //  (* 例: "C:\\Users\\youru\\Documents\\SoftwareWithoutInstaller\\BouyomiChan_0_1_11_0_Beta21\\BouyomiChan.exe" )
+        //      (* 「 \ 」(フォルダー区切りの記号)は 「 \\ 」(同じ記号2つ)に変更すること)
+        //  (* "" とした場合や、間違ったパスを設定した場合は、自動で起動されない)
+        //      (* 自動で起動させない場合は、本ボット起動前に 棒読みちゃん を手動で起動させておくこと)
+        //  (* 自動で起動させた場合は、<ter>_kill または <ter>_restart で
+        //     本ボットを停止させた場合であれば、 棒読みちゃん も自動で停止)
+        "autoRunKillPath": "C:\\Users\\youru\\Documents\\SoftwareWithoutInstaller\\BouyomiChan_0_1_11_0_Beta21\\BouyomiChan.exe",
+        //
+        // 使用するローカル(本ボットを動かすPC)HTTPサーバ (localhost) のポート番号
+        //  (* 棒読みちゃん での設定値 (49152～65535) に合わせること)
+        "portNo": 50080,
+        //
+        // 受け渡すメッセージたちに対する制限
+        "limitsWhenPassing": {
+            // 送信ユーザーのユーザー名ないし表示名の、末尾の算用数字部分を省略するか否か
+            //  true (省略する), false (省略しない)
+            "ignoresSenderNameSuffixNum": true,
+            //
+            // 送信ユーザーのユーザー名ないし表示名の、先頭からの文字数の上限 (* 0～25)
+            "numSenderNameCharacters": 25,
+            //
+            // 先頭からのエモート(スタンプ)数の上限 (* 0～125)
+            "numEmotes": 3,
         },
+        //
+        // 受け渡さないメッセージたち
+        "messagesToIgnore": {
+            // 送信ユーザー名たち
+            //  (* 英大文字と英小文字が混在していても可)
+            //  (* ボットとして運用するユーザーについては、ここに記載がない場合、
+            //     手動で投稿したメッセージたちは受け渡しを実行)
+            "senderUserNames": ["nightbot", "", ],
+            //
+            // ユーザーコマンドの接頭辞たち (* "<ter>_" は記載がなくても受け渡しを不実行)
+            "userCommandPrefixes": ["!", "", ],
+            //
+            // メッセージ内に含まれる文字列たち
+            "stringsInMessage": ["", ],
+        },
+        //
+        // 受け渡すメッセージの構成
+        //
+        // 受け渡すメッセージの中で置換される文字列たち
+        //  {{senderUserName}} -> 送信ユーザー名(チャンネルURLの末尾)
+        //  {{senderDisplayName}} -> 送信ユーザーの表示名
+        //  {{senderMessage}} -> 送信ユーザーのメッセージ
+        "messagesFormat": "{{senderDisplayName}} san: {{senderMessage}}",
     },
 }
 ```
 
 
 #### 必須の設定
-`    // メッセージ送信先となるチャンネルに関する設定たち` および `    // イベントたちに対する応答たちに関する設定` 以降にある以下の箇所について、必要な変更をして、上書き保存してください。
+`    // ■ メッセージ送信先となるチャンネルに関する設定たち` および `    // ■ メッセージ送信を行うボットに関する設定たち` 以降にある以下の箇所について、必要な変更をして、上書き保存してください。
 
 | 箇所 | 変更すべき部分 | 何に変更するか |
 | :--- | :-- | :-- |
-| `"broadcasterUserName": "YourChannelName"` | `YourChannelName` | 配信を行うユーザー名（チャンネルURLの末尾） |
+| `"broadcasterUserName": "yourchannelname"` | `yourchannelname` | 配信を行うユーザー名（チャンネルURLの末尾） |
 | `"oAuthAccessToken": "9y0urb0tuser0authacceesst0ken9"` | `9y0urb0tuser0authacceesst0ken9` | 上記の [ボットとして運用するユーザーのユーザーアクセストークン文字列の取得](#ボットとして運用するユーザーのユーザーアクセストークン文字列の取得) で得たトークン文字列 |
 | `"nameColor": "blue"` | `blue` | 上の行の「名前の色」で候補として挙げられている、色を表す文字列たちから1つ |
 
 
 #### イベントに自動で応答する機能の設定
-`    // イベントたちに対する応答たちに関する設定` 以降にある以下の箇所を、やりたいことに応じて変更して、上書き保存してください。
+`    // ■ イベントたちに対する応答たちに関する設定` 以降にある以下の箇所を、やりたいことに応じて変更して、上書き保存してください。
 
 | 箇所 | 変更すべき部分 | 何に変更するか |
 | :--- | :-- | :-- |
@@ -379,7 +448,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 #### チャット翻訳機能の設定
-`    // メッセージたちに対する翻訳に関する設定` 以降にある箇所を、やりたいことに応じて変更して、上書き保存してください。なお、初期設定のままでも、上記の [必須の設定](#必須の設定) を行っていれば、チャット翻訳機能は動作します。
+`    // ■ メッセージたちに対する翻訳に関する設定` 以降にある箇所を、やりたいことに応じて変更して、上書き保存してください。なお、初期設定のままでも、上記の [必須の設定](#必須の設定) を行っていれば、チャット翻訳機能は動作します。
 
 - 初期設定以外のチャット翻訳サービスを使用したい場合：
     - DeepL翻訳で、認証キーを使用する場合： [DeepL翻訳の無料版APIキーの登録発行手順！世界一のAI翻訳サービスをAPI利用](https://auto-worker.com/blog/?p=5030) などを参考にして、キーを取得して入力したのち、行頭の `//` を削除（アンコメント）
@@ -387,6 +456,28 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
         - 翻訳サービスたちの優先使用順に応じて、`[ ]` で囲まれた行の上下を入れ替え
 - チャット翻訳をしたくない場合： `["deeplTranslate", "https://www2.deepl.com/jsonrpc", ]` および `["googleTrans", "translate.google.co.jp", ]` を行ごと削除するか、行の頭に `//` を挿入（コメントアウト）
 
+なお、各メッセージの前後に以下のような指定を付加することで、メッセージ単位で翻訳のされ方を細かく制御できます。
+- `(翻訳元言語) > (メッセージ)` ：メッセージを何語と認識するかを指定
+    - 例： `湯` → `hot water (JA > EN)` vs. `zh > 湯` → `スープ (ZH > JA)`
+- `(メッセージ) > (翻訳先言語)` ：メッセージを何語に翻訳するかを指定
+    - 例： `こんばんは` → `good evening (JA > EN)` vs. `こんばんは > fr` → `Bonne soirée (JA > FR)`
+- `(翻訳サービス名) = (メッセージ)`：翻訳サービスを指定
+    - 例： `deepltranslate = とりま` → `anyhow (JA > EN)` vs. `googletrans = とりま` → `Torima (ja > en)`
+
+上記のオプションは、 `(翻訳サービス名) = (翻訳元言語) > (メッセージ) > (翻訳先言語)` などと、組み合わせて使用もできます。
+
+
+#### 棒読みちゃん連携機能の設定
+`    // ■ メッセージたちの 棒読みちゃん への受け渡しに関する設定` 以降にある箇所を、やりたいことに応じて変更して、上書き保存してください。なお、初期設定のままでは、上記の [必須の設定](#必須の設定) を行っていても、 [棒読みちゃん](https://chi.usamimi.info/Program/Application/BouyomiChan/) によるメッセージたちの読み上げはなされません。読み上げてもらうには、少なくとも以下の設定を行ってください。
+- [棒読みちゃん](https://chi.usamimi.info/Program/Application/BouyomiChan/) の変更と確認
+    - バージョンを `Ver0.1.11.0 Beta21` に更新
+    - 例えば [【読み上げ】棒読みちゃん連携](https://onecomme.com/docs/feature/bouyomichan/) を参考に、基本設定の `01)ローカルHTTPサーバ機能を使う` の設定値を `True` に変更し、 `02)ポート番号` の設定値を記憶
+        - エラーメッセージが表示されるようになった場合は、 `02)ポート番号` の初期設定値である `50080` を `49152` ～ `65535` の中の別の数字に変更するか、以下を参考に問題を解消
+            - [棒読みちゃんの起動失敗時にパソコンの再起動をせず対応する手順](https://yo2.site/index.php/2020/03/04/post-1663/)
+            - [棒読みちゃんβ21でエラー「HTTPサーバを開始できませんでした(Port:50080)」が出ます。](https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q14268011994)
+- 本ボットの `config.json5` の設定値の変更
+    - `"sendsMessages"` の設定値を `false` → `true` に変更
+    - `"portNo"` の設定値を、上記の `02)ポート番号` の設定値に変更
 
 
 
@@ -404,7 +495,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 - スクリプト版： Pythonで `./Code/main.py` を実行
 
 .exeファイル版は、Windowsやセキュリティーソフトによりウイルスの疑いありと判定され、初回の起動が妨げられる可能性があります。その場合は、（もちろん本ボットはウイルスではないので）疑いを解除して起動できるようにしてください。
-- .exeファイルはスクリプト版に [PyInstaller](https://pyinstaller.org/en/stable/) を適用して生成しているが、 [PyInstaller](https://pyinstaller.org/en/stable/) を使用して生成した.exeファイルにはよくある現象
+- .exeファイルはスクリプト版に [PyInstaller](https://pyinstaller.org/en/stable/) を適用して生成しているが、 [PyInstaller](https://pyinstaller.org/en/stable/) を使用して生成した.exeファイルにはよく起こる現象
 
 本ボットはネット通信を行うアプリであるため、初回起動時にファイアーウォールソフトが通信をブロックしようとする可能性があります。その場合は、 **通信を許可してください** 。
 
@@ -413,14 +504,14 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、コンソール（黒い画面）に以下のようなメッセージが表示されます。
 
 ```
---- Twitch EventSub Response Bot (v2.0) ---
+--- Twitch EventSub Response Bot (v3.0.0) ---
 [Preprocess]
-  JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-vX.Y\config.json5
+  JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-vX.Y.Z\config.json5
     parsing this file ... done.
 
 [Activation of Bot]
   Initializing bot ...
-    Message channel user name = YourChannelName
+    Message channel user name = yourchannelname
     Bot token length = 30
   done.
 
@@ -439,6 +530,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
     Bot cogs
       TERRaidCog
       TERTransCog
+      TERBouyomiCog
     Setting bot name color = blue ... done.
   done.
 
@@ -452,7 +544,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、コンソール（黒い画面）に以下のようなメッセージが表示されます。
 
 ```
-  Testing bot (v2.0) ...
+  Testing bot (v3.0.0) ...
     Channel name = yourchannelname
     Bot user ID = 888888888
     Bot user name = yourbotusername
@@ -463,6 +555,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
     Bot cogs
       TERRaidCog
       TERTransCog
+      TERBouyomiCog
   done.
 
 ```
@@ -525,7 +618,21 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 ## バージョン履歴
+2023-04-14 (v3.0.0)
+
+※ **`config.json5` の再設定が必要**
+- チャットメッセージを棒読みちゃんに受け渡す機能を追加
+- `config.json5` の書式変更
+    - `bouyomiChan` キーと値の追加
+    - 翻訳先メッセージへの追加文字列の設定を見直し、 `messagesFormat` キーと値の追加
+    - その他軽微な変更
+- `/me (メッセージ)` 公式コマンド実行時に ACTION という文字列がメッセージに付加されて翻訳されるのを回避
+- `(翻訳サービス名) = (メッセージ)` で翻訳サービス名を指定できるオプションを追加
+
+
 2023-03-28：v2.0
+
+※ **`config.json5` の再設定が必要**
 - チャット翻訳機能を追加
 - `config.json5` の書式変更
     - `translation` キーと値の追加
@@ -544,6 +651,8 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 - .exeファイル版で `_MEIxxxxxx` （ `xxxxxx` の部分は数字）一時フォルダーが.exeファイルがあるフォルダーに生成されるように変更
 
 2023-02-26：v0.4
+
+※ **`config.json5` の再設定が必要**
 - `<ter>_kill` または `<ter>_kill (0から255の整数値)` コマンドの追加
     - 本ボットを停止させる機能
         - チャンネルの配信者またはボットとして使用するユーザーのみが使用可能
@@ -555,6 +664,8 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
     - `userName` キーを `broadcasterUserName` キーに変更
 
 2023-02-24：v0.3
+
+※ **`config.json5` の再設定が必要**
 - `config.json5` の書式変更
     - `commands` と `messages` のキーと実行順の指定を廃止し、上から順に実行されるように簡素化
     - `raid` を `/raid` に、 `shoutout` を `/shoutout` にそれぞれ変更
@@ -569,17 +680,25 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 ## 参考資料
-- [Twitch Developer Documentation](https://dev.twitch.tv/docs/)
-- TwitchIO（[documentation](https://twitchio.dev/en/latest/)、[GitHub](https://github.com/TwitchIO/TwitchIO)）
-- [TwitchIOの実装例](https://github.com/Charahiro-tan/TwitchIO_example_ja)
-- [TwitchIOでTwitchのBotを作る](https://qiita.com/maguro869/items/57b866779b665058cfe8)
-- [Twitch APIに必要なOAuth認証のアクセストークンを取得しよう](https://qiita.com/pasta04/items/2ff86692d20891b65905)
-    - 「トークンを取得してみる」
-        - 「1. The OAuth implicit code flow」
-- [Twitchでレイドされたときに自動でお礼と宣伝をする方法](https://naosan-rta.hatenablog.com/entry/2022/02/27/113227)
-- [チャット翻訳ちゃん](http://www.sayonari.com/trans_asr/trans.html)
-- [DeepL翻訳の無料版APIキーの登録発行手順！世界一のAI翻訳サービスをAPI利用](https://auto-worker.com/blog/?p=5030)
-- [Google翻訳APIを無料で作る方法](https://qiita.com/satto_sann/items/be4177360a0bc3691fdf)
+- ボット全般
+    - [Twitch Developer Documentation](https://dev.twitch.tv/docs/)
+    - TwitchIO（[documentation](https://twitchio.dev/en/latest/)、[GitHub](https://github.com/TwitchIO/TwitchIO)）
+    - [TwitchIOの実装例](https://github.com/Charahiro-tan/TwitchIO_example_ja)
+    - [TwitchIOでTwitchのBotを作る](https://qiita.com/maguro869/items/57b866779b665058cfe8)
+    - [Twitch APIに必要なOAuth認証のアクセストークンを取得しよう](https://qiita.com/pasta04/items/2ff86692d20891b65905)
+        - 「トークンを取得してみる」
+            - 「1. The OAuth implicit code flow」
+- イベントに対する自動応答機能
+    - [Twitchでレイドされたときに自動でお礼と宣伝をする方法](https://naosan-rta.hatenablog.com/entry/2022/02/27/113227)
+- チャットメッセージの翻訳機能
+    - [チャット翻訳ちゃん](http://www.sayonari.com/trans_asr/trans.html)
+    - [DeepL翻訳の無料版APIキーの登録発行手順！世界一のAI翻訳サービスをAPI利用](https://auto-worker.com/blog/?p=5030)
+    - [Google翻訳APIを無料で作る方法](https://qiita.com/satto_sann/items/be4177360a0bc3691fdf)
+- チャットメッセージの棒読みちゃんへの受け渡し機能
+    - [棒読みちゃん](https://chi.usamimi.info/Program/Application/BouyomiChan/)
+    - [【読み上げ】棒読みちゃん連携](https://onecomme.com/docs/feature/bouyomichan/)
+    - [棒読みちゃんの起動失敗時にパソコンの再起動をせず対応する手順](https://yo2.site/index.php/2020/03/04/post-1663/)
+    - [棒読みちゃんβ21でエラー「HTTPサーバを開始できませんでした(Port:50080)」が出ます。](https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q14268011994)
 
 
 
@@ -590,4 +709,4 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 ### .exeファイルの生成方法
-`Pyinstaller` フォルダーをカレントディレクトリにして、 `pyinstaller --clean --onefile --runtime-tmpdir=. --name twitch-eventsub-response-py ../Codes/main.py` をする。
+`PyInstaller` フォルダーをカレントディレクトリにして、 `pyinstaller --clean --onefile --runtime-tmpdir=. --name twitch-eventsub-response-py ../Codes/main.py` をする。

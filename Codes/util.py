@@ -15,7 +15,7 @@ class JSON5Reader:
     """JSON5ファイルを読み込むクラス(クラスメソッドのみ)"""
 
     @classmethod
-    def open_and_loads(cls, _file: pathlib.Path | str, ) -> dict[str, Any]:
+    def open_and_load(cls, _file: pathlib.Path | str, ) -> dict[str, Any]:
         """ファイルをパースして内容を辞書形式で返す
 
         Parameters
@@ -28,12 +28,11 @@ class JSON5Reader:
         dict[str, Any]
             ファイルの内容を辞書形式にしたもの
         """
-        s_file: str = ''
+        d: dict[str, Any] = {}
         with open(
             _file, mode='r', encoding=TextFileEncodingEstimator.do(_file),
-        ) as f_t:
-            s_file = f_t.read()
-        d: dict[str, Any] = json5.loads(s_file, )  # type: ignore
+        ) as fp:
+            d = json5.load(fp, )  # type: ignore
         return d
 # ----------------------------------------------------------------------
 

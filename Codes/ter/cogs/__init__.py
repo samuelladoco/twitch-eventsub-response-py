@@ -4,3 +4,6 @@ from .raid_cog import (
 from .trans_cog import (
     TERTransCog,
 )
+from .bouyoumi_cog import (
+    TERBouyomiCog,
+)

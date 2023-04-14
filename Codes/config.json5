@@ -1,20 +1,20 @@
-// Twitch EventSub Response Bot - Config (v2.0--)
+// Twitch EventSub Response Bot - Config (v3.0.0--)
 {
-    // メッセージ送信先となるチャンネルに関する設定たち
+    // ■ メッセージ送信先となるチャンネルに関する設定たち
     "messageChannel": {
         // チャンネル配信者のユーザー名(チャンネルURLの末尾)
         //  (* 全て英小文字でも、英大文字と英小文字が混在していても、どちらでも可)
-        "broadcasterUserName": "YourChannelName",
+        "broadcasterUserName": "yourchannelname",
     },
     //
-    // メッセージ送信を行うボットに関する設定たち
+    // ■ メッセージ送信を行うボットに関する設定たち
     "bot": {
         // ボットとして運用するユーザーのOAuthアクセストークン
         //  (* 使う機能が要求する権限をボットとなるユーザーが持っていること)
         //  (* 使う機能が要求する権限をトークンが持っていること)
         "oAuthAccessToken": "9y0urb0tuser0authacceesst0ken9",
         //
-        // チャンネルで表示されるボットの名前の色:
+        // チャンネルで表示されるボットの名前の色
         //  (* トークンが "user:manage:chat_color" 権限を持っていること)
         //  "blue", "blue_violet", "cadet_blue", "chocolate", "coral",
         //  "dodger_blue", "firebrick", "golden_rod", "green", "hot_pink",
@@ -23,54 +23,53 @@
         "nameColor": "blue",
     },
     //
-    // イベントたちに対する応答たちに関する設定
+    // ■ イベントたちに対する応答たちに関する設定
     "responses": {
         // レイド
         "/raid": [
-            // コマンドやメッセージの中で置換される文字列たち:
-            //  {{raidBroadcasterUserName}} -> レイド元のユーザー名(チャンネルURLの末尾)
-            //
             // [
-            //  送信前の待機時間(秒),
-            //  公式コマンド・メッセージ (* ユーザーコマンドを含む),
+            //  送信前の待機時間(秒), 公式コマンド・メッセージ (* ユーザーコマンドを含む),
             //  (* 必要あれば追加情報1, 追加情報2, ...,)
             // ] の組たち
             //  (* 上から順に1つずつ実行)
             //
+            // コマンドやメッセージの中で置換される文字列たち
+            //  {{raidBroadcasterUserName}} -> レイド元のユーザー名(チャンネルURLの末尾)
+            //
             // メッセージ (* ユーザーコマンドを含む) の例
             [ 5, "!raided {{raidBroadcasterUserName}}", ],
             //
-            // コマンドの例
+            // 公式コマンドの例
             //  /shoutout
             //      (* ボットとなるユーザーが モデレーター 以上であること)
             //      (* トークンが "moderator:manage:shoutouts" 権限を持っていること)
             [10, "/shoutout", ],
             //
             // (* 公式コマンド・メッセージを実行しない場合は、
-            //  該当する [ ] の行を削除するか、行の頭に // を挿入(コメントアウト))
+            //    該当する [ ] の行を削除するか、行の頭に // を挿入(コメントアウト))
             // [10, "Sample message", ],
             //
-            // (* ほかのコマンドは、要望があれば追加対応するかもしれません)
+            // (* ほかのコマンドは、要望があれば追加対応するかも)
         ],
         //
-        //  (* ほかのイベントは、要望があれば追加対応するかもしれません)
+        //  (* ほかのイベントは、要望があれば追加対応するかも)
     },
     //
-    // メッセージたちに対する翻訳に関する設定
+    // ■ メッセージたちに対する翻訳に関する設定
     "translation": {
-        // 使用する翻訳サービスたちと優先使用順位:
-        //  (* 翻訳できるまで、上に設定したサービスから順に使用する)
-        "serviceWithKeyOrURLs": [
+        // 使用する翻訳サービスたちと優先使用順位
+        //  (* 各メッセージについて、翻訳できるまで、上に設定したサービスから順に使用)
+        "servicesWithKeyOrURL": [
             // DeepL翻訳で、認証キーを使用しない場合 (* 不具合がなければ変更不要)
             ["deeplTranslate", "https://www2.deepl.com/jsonrpc", ],
             //
-            // Google翻訳で、通常の場合:
+            // Google翻訳で、 Google アカウント にひも付いた設定を必要としない場合
             //  "translate.google.????/"
             //      (* いずれかの国のURLを設定するが、不具合がなければ変更不要)
             ["googleTrans", "translate.google.co.jp", ],
             //
             // (* サービスを使用しない場合は、
-            //  該当する [ ] の行を削除するか、行の頭に // を挿入(コメントアウト))
+            //    該当する [ ] の行を削除するか、行の頭に // を挿入(コメントアウト))
             //
             // DeepL翻訳で、認証キーを使用する場合
             // ["deeplKey", "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx", ],
@@ -79,18 +78,23 @@
             //  "https://script.google.com/macros/s/????/exec" (* GASのURL)
             // ["googleGAS", "https://script.google.com/macros/s/????/exec", ],
         ],
+        //
         // 翻訳元言語の判定に使用するサービス (* 不具合がなければ変更不要)
         "fromLanguageDetection": "translate.google.co.jp",
-        // 翻訳しないメッセージ
+        //
+        // 翻訳しないメッセージたち
         "messagesToIgnore": {
-            // ユーザー名たち (* ボットとして運用するユーザーは記載がなくても翻訳しない)
+            // 送信ユーザー名たち
             //  (* 英大文字と英小文字が混在していても可)
-            "senderUserName": ["nightbot", "", ],
-            // メッセージの言語たち:
+            //  (* ボットとして運用するユーザーについては、ここに記載がない場合、
+            //     手動で投稿したメッセージたちは翻訳を実行)
+            "senderUserNames": ["nightbot", "", ],
+            //
+            // 翻訳元言語たち
             //  (* ノルウェー語, 中国語は、
             //     DeepL翻訳とGoogle翻訳とで略称が異なるため、
             //     これらの言語を設定する場合は両方の略称を併記するのがよい)
-            //  DeepL翻訳(認証キー使用, 不使用), Google翻訳すべてで利用可能な言語たち:
+            //  DeepL翻訳(認証キー使用, 不使用), Google翻訳すべてで利用可能な言語たち
             //      "BG" (Bulgarian), "CS" (Czech), "DA" (Danish),
             //      "DE" (German), "EL" (Greek), "EN" (English), "ES" (Spanish),
             //      "ET" (Estonian), "FI" (Finnish), "FR" (French),
@@ -99,16 +103,16 @@
             //      "PL" (Polish), "PT" (Portuguese), "RO" (Romanian),
             //      "RU" (Russian), "SK" (Slovak), "SL" (Slovenian),
             //      "SV" (Swedish),
-            //  DeepL翻訳(認証キー使用), Google翻訳で利用可能な言語たち:
+            //  DeepL翻訳(認証キー使用), Google翻訳で利用可能な言語たち
             //      "ID" (Indonesian), "KO" (Korean), "TR" (Turkish),
             //      "UK" (Ukrainian),
-            //  DeepL翻訳(認証キー使用, 不使用)で利用可能な言語たち:
+            //  DeepL翻訳(認証キー使用, 不使用)で利用可能な言語たち
             //      "ZH" (Chinese)
             //          (* Google翻訳では "zh-cn" または "zh-tw" ),
-            //  DeepL翻訳(認証キー使用)でのみ利用可能な言語たち:
+            //  DeepL翻訳(認証キー使用)でのみ利用可能な言語たち
             //      "NB" (Norwegian),
             //          (* Google翻訳では "no" )
-            //  Google翻訳でのみ利用可能な言語たち:
+            //  Google翻訳でのみ利用可能な言語たち
             //      "af" (afrikaans), "sq" (albanian), "am" (amharic),
             //      "ar" (arabic), "hy" (armenian), "az" (azerbaijani),
             //      "eu" (basque), "be" (belarusian), "bn" (bengali),
@@ -141,41 +145,44 @@
             //      "yi" (yiddish), "yo" (yoruba), "zu" (zulu),
             //      (* ほかにもあるが、本ボットでは未対応)
             "fromLanguages": ["", ],
-            // ユーザーコマンドの接頭辞たち (* "<ter>_" は記載がなくても翻訳しない)
+            //
+            // ユーザーコマンドの接頭辞たち (* "<ter>_" は記載がなくても翻訳を不実行)
             "userCommandPrefixes": ["!", "", ],
-            // メッセージ内の文字列たち
+            //
+            // メッセージ内に含まれる文字列たち
             "stringsInMessage": ["http", "", ],
         },
-        // 翻訳先言語:
+        //
+        // 翻訳先言語(たち)
         //  (* 英語, ノルウェー語, ポルトガル語, 中国語は、
         //     DeepL翻訳(認証キー使用, 不使用)とGoogle翻訳とで略称が異なるため、
         //     これらの言語を設定する場合は両方の略称を併記するのがよい)
-        //  DeepL翻訳(認証キー使用, 不使用), Google翻訳すべてで利用可能な言語たち:
+        //  DeepL翻訳(認証キー使用, 不使用), Google翻訳すべてで利用可能な言語たち
         //      "BG" (Bulgarian), "CS" (Czech), "DA" (Danish), "DE" (German),
         //      "EL" (Greek), "ES" (Spanish), "ET" (Estonian), "FI" (Finnish),
         //      "FR" (French), "HU" (Hungarian), "IT" (Italian),
         //      "JA" (Japanese), "LT" (Lithuanian), "LV" (Latvian),
         //      "NL" (Dutch), "PL" (Polish), "RO" (Romanian), "RU" (Russian),
         //      "SK" (Slovak), "SL" (Slovenian), "SV" (Swedish),
-        //  DeepL翻訳(認証キー使用), Google翻訳で利用可能な言語たち:
+        //  DeepL翻訳(認証キー使用), Google翻訳で利用可能な言語たち
         //      "ID" (Indonesian), "KO" (Korean), "TR" (Turkish),
         //      "UK" (Ukrainian),
-        //  DeepL翻訳(認証キー不使用), Google翻訳で利用可能な言語たち:
+        //  DeepL翻訳(認証キー不使用), Google翻訳で利用可能な言語たち
         //      "EN" (English),
         //          (* DeepL翻訳(認証キー使用)では "EN-GB" または "EN-US" )
         //      "PT" (Portuguese),
         //          (* DeepL翻訳(認証キー使用)では "PT-BR" または "PT-PT" )
-        //  DeepL翻訳(認証キー使用, 不使用)で利用可能な言語たち:
+        //  DeepL翻訳(認証キー使用, 不使用)で利用可能な言語たち
         //      "ZH" (Chinese)
         //          (* Google翻訳では "zh-cn" または "zh-tw" ),
-        //  DeepL翻訳(認証キー使用)でのみ利用可能な言語たち:
+        //  DeepL翻訳(認証キー使用)でのみ利用可能な言語たち
         //      "EN-GB" (English (British)), "EN-US" (English (American)),
         //          (* DeepL翻訳(認証キー不使用), Google翻訳では "en" )
         //      "NB" (Norwegian),
         //          (* Google翻訳では "no" )
         //      "PT-BR" (Portuguese (Brazilian)), "PT-PT" (Portuguese (European)),
         //          (* DeepL翻訳(認証キー不使用), Google翻訳では "pt")
-        //  Google翻訳でのみ利用可能な言語たち:
+        //  Google翻訳でのみ利用可能な言語たち
         //      "af" (afrikaans), "sq" (albanian), "am" (amharic),
         //      "ar" (arabic), "hy" (armenian), "az" (azerbaijani),
         //      "eu" (basque), "be" (belarusian), "bn" (bengali),
@@ -207,17 +214,76 @@
         "toLanguages": {
             // 既定の翻訳先言語(たち)
             "defaults": ["JA", "", ],
+            //
             // 翻訳元言語が既定の翻訳先言語であった場合の、代わりの翻訳先言語(たち)
             "onesIfFromLanguageIsInDefaults": ["EN-US", "EN", "", ],
         },
-        // 翻訳先メッセージへの追加文字列
-        "supplementsToTranslatedMessage": {
-            // 翻訳先メッセージの冒頭に送信したユーザー名を追加するか否か:
-            //  true (追加する), false (追加しない)
-            "senderUserName": true,
-            // 翻訳先メッセージの末尾に翻訳元と翻訳先の言語を追加するか否か:
-            //  true (追加する), false (追加しない)
-            "fromToLanguages": true,
+        //
+        // 翻訳先メッセージの構成
+        //
+        // 翻訳先メッセージの中で置換される文字列たち
+        //  {{senderUserName}} -> 送信ユーザー名(チャンネルURLの末尾)
+        //  {{senderDisplayName}} -> 送信ユーザーの表示名
+        //  {{toMessage}} -> 翻訳された送信ユーザーのメッセージ
+        //  {{fromLanguage}} -> 翻訳元言語
+        //  {{toLanguage}} -> 翻訳先言語
+        "messagesFormat": "{{senderUserName}}: {{toMessage}} ({{fromLanguage}} > {{toLanguage}})",
+    },
+    //
+    // ■ メッセージたちの 棒読みちゃん への受け渡しに関する設定
+    "bouyomiChan": {
+        // メッセージたちを受け渡すか否か
+        //  true (受け渡す), false (受け渡さない)
+        "sendsMessages": false,
+        //
+        // 本ボット起動時に、自動で 棒読みちゃん を起動させる場合の、
+        // 棒読みちゃん の実行ファイルの絶対パス
+        //  (* 例: "C:\\Users\\youru\\Documents\\SoftwareWithoutInstaller\\BouyomiChan_0_1_11_0_Beta21\\BouyomiChan.exe" )
+        //      (* 「 \ 」(フォルダー区切りの記号)は 「 \\ 」(同じ記号2つ)に変更すること)
+        //  (* "" とした場合や、間違ったパスを設定した場合は、自動で起動されない)
+        //      (* 自動で起動させない場合は、本ボット起動前に 棒読みちゃん を手動で起動させておくこと)
+        //  (* 自動で起動させた場合は、<ter>_kill または <ter>_restart で
+        //     本ボットを停止させた場合であれば、 棒読みちゃん も自動で停止)
+        "autoRunKillPath": "C:\\Users\\youru\\Documents\\SoftwareWithoutInstaller\\BouyomiChan_0_1_11_0_Beta21\\BouyomiChan.exe",
+        //
+        // 使用するローカル(本ボットを動かすPC)HTTPサーバ (localhost) のポート番号
+        //  (* 棒読みちゃん での設定値 (49152～65535) に合わせること)
+        "portNo": 50080,
+        //
+        // 受け渡すメッセージたちに対する制限
+        "limitsWhenPassing": {
+            // 送信ユーザーのユーザー名ないし表示名の、末尾の算用数字部分を省略するか否か
+            //  true (省略する), false (省略しない)
+            "ignoresSenderNameSuffixNum": true,
+            //
+            // 送信ユーザーのユーザー名ないし表示名の、先頭からの文字数の上限 (* 0～25)
+            "numSenderNameCharacters": 25,
+            //
+            // 先頭からのエモート(スタンプ)数の上限 (* 0～125)
+            "numEmotes": 3,
         },
+        //
+        // 受け渡さないメッセージたち
+        "messagesToIgnore": {
+            // 送信ユーザー名たち
+            //  (* 英大文字と英小文字が混在していても可)
+            //  (* ボットとして運用するユーザーについては、ここに記載がない場合、
+            //     手動で投稿したメッセージたちは受け渡しを実行)
+            "senderUserNames": ["nightbot", "", ],
+            //
+            // ユーザーコマンドの接頭辞たち (* "<ter>_" は記載がなくても受け渡しを不実行)
+            "userCommandPrefixes": ["!", "", ],
+            //
+            // メッセージ内に含まれる文字列たち
+            "stringsInMessage": ["", ],
+        },
+        //
+        // 受け渡すメッセージの構成
+        //
+        // 受け渡すメッセージの中で置換される文字列たち
+        //  {{senderUserName}} -> 送信ユーザー名(チャンネルURLの末尾)
+        //  {{senderDisplayName}} -> 送信ユーザーの表示名
+        //  {{senderMessage}} -> 送信ユーザーのメッセージ
+        "messagesFormat": "{{senderDisplayName}} san: {{senderMessage}}",
     },
 }

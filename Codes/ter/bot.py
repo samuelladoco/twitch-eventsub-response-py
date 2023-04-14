@@ -70,14 +70,16 @@ class TERBot(commands.Bot):
                 self.__token, pu, self.__j['translation'], [], self.__prefix,
             )
         )
+        self.add_cog(
+            TERBouyomiCog(
+                self.__token, pu, self.__j['bouyomiChan'], [], self.__prefix,
+            )
+        )
         #
         # ToDo: ★ (Cog) 別のCogを開発した場合は、登録処理をここに実装する
         # self.add_cog(
         #     TER????Cog(self.__token, pu, {}, [], )
         # )
-        #
-        for c in self.cogs.keys():
-            print(f'      {c}')
         #
         name_color: str = str(self.__j['bot']['nameColor']).casefold().strip()
         if name_color != 'doNotChange'.casefold().strip():
@@ -130,6 +132,10 @@ class TERBot(commands.Bot):
     async def __kill(self, ctx: commands.Context):
         if self.__is_by_channel_broadcaster_or_myself(ctx) is True:
             print(f'  Killing bot ... ')
+            #
+            c: commands.Cog | None = self.get_cog('TERBouyomiCog')
+            if type(c) is TERBouyomiCog:
+                c.kill_process()
             self.loop.stop()
             #
             await ctx.send(f'/me bot for {self.__prefix} has stopped.')

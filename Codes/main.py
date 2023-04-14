@@ -13,7 +13,7 @@ import util
 
 # Version No.
 # -----------------------------------------------------------------------------
-ver_no: str = '2.0'.casefold().strip()
+ver_no: str = ter.__version__.casefold().strip()
 # -----------------------------------------------------------------------------
 
 
@@ -34,7 +34,7 @@ def main() -> int:
     cj_file: pathlib.Path = base_dir.joinpath('config.json5')
     print(f'  JSON5 file path = {cj_file}')
     print(f'    parsing this file ... ', end='', )
-    cj_obj: dict[str, Any] = util.JSON5Reader.open_and_loads(cj_file)
+    cj_obj: dict[str, Any] = util.JSON5Reader.open_and_load(cj_file)
     cj_obj['verNo'] = ver_no
     print(f'done.')
     print(f'')
