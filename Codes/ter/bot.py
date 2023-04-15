@@ -20,7 +20,7 @@ class TERBot(commands.Bot):
         self.__j: dict[str, Any] = _j
         self.__token: str = str(self.__j['bot']['oAuthAccessToken']).strip()
         self.__prefix: str = '<ter>_'
-        self.__return_code: int = -1
+        self.__return_code: int = 1
         #
         broadcaster_user_name: str = str(
             self.__j['messageChannel']['broadcasterUserName']
@@ -132,10 +132,6 @@ class TERBot(commands.Bot):
     async def __kill(self, ctx: commands.Context):
         if self.__is_by_channel_broadcaster_or_myself(ctx) is True:
             print(f'  Killing bot ... ')
-            #
-            c: commands.Cog | None = self.get_cog('TERBouyomiCog')
-            if type(c) is TERBouyomiCog:
-                c.kill_process()
             self.loop.stop()
             #
             await ctx.send(f'/me bot for {self.__prefix} has stopped.')
@@ -147,7 +143,7 @@ class TERBot(commands.Bot):
             if len(return_code_str) <= 3 and return_code_str.isdecimal() is True:
                 return_code_int: int = int(return_code_str)
                 if 0 <= return_code_int <= 255:
-                    self.__return_code = int(return_code_int)
+                    self.__return_code = return_code_int
                     is_valid_return_code = True
                 else:
                     self.__return_code = 0
@@ -175,5 +171,10 @@ class TERBot(commands.Bot):
                 return False
         else:
             return False
+
+    def kill_bouyomi_process(self) -> None:
+        c: commands.Cog | None = self.get_cog('TERBouyomiCog')
+        if type(c) is TERBouyomiCog:
+            c.kill_process()
 # ----------------------------------------------------------------------
 # -----------------------------------------------------------------------------
