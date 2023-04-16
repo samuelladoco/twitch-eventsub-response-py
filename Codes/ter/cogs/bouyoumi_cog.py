@@ -55,11 +55,15 @@ class TERBouyomiCog(TERBaseCog):
         self.__p: subprocess.Popen | None = None
         if self.__auto_run_kill_path is not None:
             try:
+                print(
+                    f'        Running "{str(self.__auto_run_kill_path)}" ... ',
+                    end='',
+                )
                 self.__p = subprocess.Popen(self.__auto_run_kill_path)
+                print(f'done.')
             except (OSError, subprocess.CalledProcessError) as e:
-                print(f'        Run of "{str(self.__auto_run_kill_path)}" failed.')
+                print(f'failed')
                 print(f'          {e}')
-                print(f'')
         #
         #
         # 受け渡すメッセージたちに対する制限

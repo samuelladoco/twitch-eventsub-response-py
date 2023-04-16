@@ -50,8 +50,8 @@ class TERRaidCog(TERBaseCog):
                 # レイド元のユーザー(チャンネル)IDを取得して利用
                 shoutout_broadcaster_user_id: str = str(tags.get('user-id', -1))
                 print(
-                    f'    Shoutout broadcaster user ID = ' +
-                    f'{shoutout_broadcaster_user_id}'
+                    f'    Shoutout broadcaster user ID = '
+                    + f'{shoutout_broadcaster_user_id}'
                 )
                 if shoutout_broadcaster_user_id == '-1':
                     print(f'      * Invalid ID')

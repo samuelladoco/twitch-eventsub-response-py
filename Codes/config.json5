@@ -242,8 +242,7 @@
         //      (* 「 \ 」(フォルダー区切りの記号)は 「 \\ 」(同じ記号2つ)に変更すること)
         //  (* "" とした場合や、間違ったパスを設定した場合は、自動で起動されない)
         //      (* 自動で起動させない場合は、本ボット起動前に 棒読みちゃん を手動で起動させておくこと)
-        //  (* 自動で起動させた場合は、<ter>_kill, <ter>_restart, Ctrl + C, Ctrl + Break で
-        //     本ボットを停止させた場合であれば、 棒読みちゃん も自動で停止)
+        //  (* 自動で起動させた場合は、本ボットの停止と共に 棒読みちゃん も自動で停止)
         "autoRunKillPath": "C:\\Users\\youru\\Documents\\SoftwareWithoutInstaller\\BouyomiChan_0_1_11_0_Beta21\\BouyomiChan.exe",
         //
         // 使用するローカル(本ボットを動かすPC)HTTPサーバ (localhost) のポート番号

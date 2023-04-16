@@ -120,9 +120,9 @@ class TERLang:
         r'[\p{Script=Hiragana}\p{Script=Katakana}]'
     )
     __p_ja_kanji: ClassVar[regex.Pattern[str]] = regex.compile(
-        rf'[{__JAPANESE_KANJIS_SEQUENCE_1ST}' +
-        rf'{__JAPANESE_KANJIS_SEQUENCE_2ND_JOYO}' +
-        rf'{__JAPANESE_KANJIS_SEQUENCE_3RD_JOYO}]'
+        rf'[{__JAPANESE_KANJIS_SEQUENCE_1ST}'
+        + rf'{__JAPANESE_KANJIS_SEQUENCE_2ND_JOYO}'
+        + rf'{__JAPANESE_KANJIS_SEQUENCE_3RD_JOYO}]'
     )
     #
     __CHINESE_KANJIS_SEQUENCE_SIMPLIFIED: ClassVar[str] =\
@@ -294,10 +294,10 @@ class TERLang:
 # 'ㄯ1ㄯ4ㄯ6ㄯEㄯF㄰0㄰1㄰3㄰4㄰5㄰6㄰7㄰8㄰9㄰A㄰Fㄱ5ㄱ6ㄱ7ㄱ8ㄱ9ㄲBㄲCㄲDㄲEㄲFㄳ0ㄳ1ㄳ2ㄳ3ㄳ4ㄳ5ㄳ6ㄳ7ㄳ8ㄳ9ㄳAㄳC'\
 # 'ㄳDㄴ1ㄴ2ㄴ4ㄴ5ㄴ6ㄴ7ㄴ8ㄴ9'
     __p_zh_s: ClassVar[regex.Pattern[str]] = regex.compile(
-        rf'(?![{__JAPANESE_KANJIS_SEQUENCE_1ST}' +
-        rf'{__JAPANESE_KANJIS_SEQUENCE_2ND_JOYO}' +
-        rf'{__JAPANESE_KANJIS_SEQUENCE_3RD_JOYO}])' +
-        rf'(?=[{__CHINESE_KANJIS_SEQUENCE_SIMPLIFIED}])'
+        rf'(?![{__JAPANESE_KANJIS_SEQUENCE_1ST}'
+        + rf'{__JAPANESE_KANJIS_SEQUENCE_2ND_JOYO}'
+        + rf'{__JAPANESE_KANJIS_SEQUENCE_3RD_JOYO}])'
+        + rf'(?=[{__CHINESE_KANJIS_SEQUENCE_SIMPLIFIED}])'
     )
     #
     __CHINESE_KANJIS_SEQUENCE_TRADITIONAL: ClassVar[str] =\
@@ -469,17 +469,17 @@ class TERLang:
 # 'ⷙ9⹱7⹿D⺄8⺐F⺑2⺙7⺢D⺣B《0》4』4〡D〤0〬6〻Cげ0げBこAせBぢFと2な3ぶ2まBゅ3ガ6ガFキBク3タ2バFヒ6ビDヤ8ロEヾ2ㄎ1'\
 # 'ㄎ2ㄎAㄚ5ㄜB'
     __p_zh_t: ClassVar[regex.Pattern[str]] = regex.compile(
-        rf'(?![{__JAPANESE_KANJIS_SEQUENCE_1ST}' +
-        rf'{__JAPANESE_KANJIS_SEQUENCE_2ND_JOYO}' +
-        rf'{__JAPANESE_KANJIS_SEQUENCE_3RD_JOYO}])' +
-        rf'(?=[{__CHINESE_KANJIS_SEQUENCE_TRADITIONAL}])'
+        rf'(?![{__JAPANESE_KANJIS_SEQUENCE_1ST}'
+        + rf'{__JAPANESE_KANJIS_SEQUENCE_2ND_JOYO}'
+        + rf'{__JAPANESE_KANJIS_SEQUENCE_3RD_JOYO}])'
+        + rf'(?=[{__CHINESE_KANJIS_SEQUENCE_TRADITIONAL}])'
     )
     #
     __p_zh_all: ClassVar[regex.Pattern[str]] = regex.compile(
-        rf'(?![{__JAPANESE_KANJIS_SEQUENCE_1ST}' +
-        rf'{__JAPANESE_KANJIS_SEQUENCE_2ND_JOYO}' +
-        rf'{__JAPANESE_KANJIS_SEQUENCE_3RD_JOYO}])' +
-        r'(?=[\p{Script=Han}])'
+        rf'(?![{__JAPANESE_KANJIS_SEQUENCE_1ST}'
+        + rf'{__JAPANESE_KANJIS_SEQUENCE_2ND_JOYO}'
+        + rf'{__JAPANESE_KANJIS_SEQUENCE_3RD_JOYO}])'
+        + r'(?=[\p{Script=Han}])'
     )
     #
     @classmethod

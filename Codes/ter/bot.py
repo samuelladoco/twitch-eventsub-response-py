@@ -25,7 +25,7 @@ class TERBot(commands.Bot):
         broadcaster_user_name: str = str(
             self.__j['messageChannel']['broadcasterUserName']
         ).casefold().strip()
-        print(f"    Message channel user name = {broadcaster_user_name}")
+        print(f'    Message channel user name = {broadcaster_user_name}')
         print(f'    Bot token length = {len(self.__token)}')
         super().__init__(  # type: ignore
             self.__token,
@@ -46,6 +46,8 @@ class TERBot(commands.Bot):
         print(f'    Channel name = {channel.name}')
         print(f'  done.')
         print(f'')
+        #
+        await channel.send(f'/me bot for {self.__prefix} has joined.')
 
     async def event_ready(self) -> None:
         print(f'  Making bot ready ...')
@@ -91,14 +93,6 @@ class TERBot(commands.Bot):
             print(f'done.')
         print(f'  done.')
         print(f'')
-        #
-        assert len(self.connected_channels) == 1, (
-            f'Bot is joining {self.connected_channels}.'
-        )
-        #
-        await self.connected_channels[0].send(
-            f'/me bot for {self.__prefix} has joined and is ready.'
-        )
 
     async def event_command_error(self,
         context: commands.Context, error: Exception
@@ -124,7 +118,9 @@ class TERBot(commands.Bot):
 
     @commands.command(name='restart', )
     async def __restart(self, ctx: commands.Context):
-        ctx.message.content = f'{self.__prefix}kill 3'
+        ctx.message.content = (
+            f"{self.__prefix}kill {str(self.__j['returnCodeForRestrt'])}"
+        )
         #
         await self.__kill(ctx)
 
@@ -153,7 +149,11 @@ class TERBot(commands.Bot):
                 is_valid_return_code = (
                     True if len(return_code_str) == 0 else False
                 )
-            print(f'    Return code = {self.__return_code}')
+            print(f'    Return code = {self.__return_code}', end='', )
+            if self.__return_code == int(self.__j['returnCodeForRestrt']):
+                print(f' (Restart)')
+            else:
+                print(f'')
             if is_valid_return_code is False:
                 print(f'      * Invalid return code input')
             print(f'  done.')
@@ -172,9 +172,15 @@ class TERBot(commands.Bot):
         else:
             return False
 
+    def kill_self_without_print(self) -> None:
+        self.__return_code = 0
+        self.loop.stop()
+
     def kill_bouyomi_process(self) -> None:
         c: commands.Cog | None = self.get_cog('TERBouyomiCog')
         if type(c) is TERBouyomiCog:
+            print(f'  Killing BouyomiChan ... ', end='', )
             c.kill_process()
+            print(f'done.')
 # ----------------------------------------------------------------------
 # -----------------------------------------------------------------------------

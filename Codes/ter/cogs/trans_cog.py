@@ -59,6 +59,10 @@ class TERTransCog(TERBaseCog):
             # DeepL Python Library
             if tts is TERTransService.DEEPLKEY:
                 try:
+                    print(
+                        f'        Getting translatable languages lists '
+                        + f'for {tts.name} ... ', end='',
+                    )
                     self.__translator_d_trans = deepl.Translator(key_or_url)
                     # 対応言語文字列たちは小文字で持つことにする(以下、同様)
                     self.__from_langs_all[tts] = [
@@ -71,13 +75,10 @@ class TERTransCog(TERBaseCog):
                         for l
                         in self.__translator_d_trans.get_target_languages()
                     ]
+                    print(f'done.')
                 except deepl.exceptions.AuthorizationException as e:
-                    print(
-                        f'        Getting translatable languages lists ' +
-                        f'for {tts.name} failed.'
-                    )
+                    print(f'failed.')
                     print(f'          {e}')
-                    print(f'')
                     continue
             # DeepL Translate
             elif tts is TERTransService.DEEPLTRANSLATE:
@@ -92,6 +93,10 @@ class TERTransCog(TERBaseCog):
             # Googletrans
             elif tts is TERTransService.GOOGLETRANS:
                 try:
+                    print(
+                        f'        Getting translatable languages lists '
+                        + f'for {tts.name} ... ', end='',
+                    )
                     self.__translator_g_trans = googletrans.Translator(
                         service_urls = [key_or_url, ],
                         raise_exception=True,
@@ -104,13 +109,10 @@ class TERTransCog(TERBaseCog):
                         k.casefold().strip()
                         for k in googletrans.LANGUAGES.keys()
                     ]
+                    print(f'done.')
                 except Exception as e:
-                    print(
-                        f'        Getting translatable languages lists ' +
-                        f'for {tts.name} failed.'
-                    )
+                    print(f'failed.')
                     print(f'          {e}')
-                    print(f'')
                     continue
             # Google Apps Script (GAS)
             elif tts is TERTransService.GOOGLEGAS:
@@ -134,16 +136,17 @@ class TERTransCog(TERBaseCog):
         # 翻訳元言語の推定に使うための googleTrans
         self.__translator_g_detection: googletrans.Translator | None = None
         try:
-                self.__translator_g_detection = googletrans.Translator(
-                    service_urls = [
-                        self.__settings_replaced['fromLanguageDetection'],
-                    ],
-                    raise_exception=True,
-                )
+            print(f'        Getting language detection function ... ', end='', )
+            self.__translator_g_detection = googletrans.Translator(
+                service_urls = [
+                    self.__settings_replaced['fromLanguageDetection'],
+                ],
+                raise_exception=True,
+            )
+            print(f'done.')
         except Exception as e:
-            print(f'        Getting language detection function failed.')
+            print(f'failed.')
             print(f'          {e}')
-            print(f'')
         #
         #
         # 翻訳しないメッセージたち
@@ -440,8 +443,8 @@ class TERTransCog(TERBaseCog):
                 is_translatable = False
             if is_translatable is False:
                 print(
-                    f'  {services[index_service]} cannot translate ' +
-                    f'"{text_from_w_service_langs}" from {lang_from} to {lang_to}.'
+                    f'  {services[index_service]} cannot translate '
+                    + f'"{text_from_w_service_langs}" from {lang_from} to {lang_to}.'
                 )
                 print(f'')
                 index_service += 1
@@ -538,8 +541,8 @@ class TERTransCog(TERBaseCog):
             except Exception as e:
                 services_to_be_removed.append(services[index_service])
                 print(
-                    f'  Translation of "{text_from_w_service_langs}" ' +
-                    f'by {services[index_service]} failed.'
+                    f'  Translation of "{text_from_w_service_langs}" '
+                    + f'by {services[index_service]} failed.'
                 )
                 print(f'    {e}')
                 print(f'')

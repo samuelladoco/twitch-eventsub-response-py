@@ -1,4 +1,4 @@
-最終更新日：2023-04-15 (v3.1.0)
+最終更新日：2023-04-16 (v3.2.0)
 
 # Twitch EventSub Response Bot (twitch-eventsub-response-py)
 [Twitch](https://www.twitch.tv/) で配信中にレイドを受けたときに、それに応答して自動で「 `/shoutout レイド元のユーザー名` 」Twitch公式チャットコマンドの実行や、チャット欄に指定したメッセージを表示してくれる、ボットアプリです。
@@ -32,8 +32,9 @@ v2.0から **チャットメッセージの翻訳機能** も搭載していま�
 - [実行](#実行)
     - [起動](#起動)
     - [動作中であるかの確認](#動作中であるかの確認)
-    - [再起動](#再起動)
     - [停止](#停止)
+    - [再起動](#再起動)
+    - [異常中断](#異常中断)
 - [アンインストール方法](#アンインストール方法)
 - [今後の展開](#今後の展開)
 - [バージョン履歴](#バージョン履歴)
@@ -398,8 +399,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
         //      (* 「 \ 」(フォルダー区切りの記号)は 「 \\ 」(同じ記号2つ)に変更すること)
         //  (* "" とした場合や、間違ったパスを設定した場合は、自動で起動されない)
         //      (* 自動で起動させない場合は、本ボット起動前に 棒読みちゃん を手動で起動させておくこと)
-        //  (* 自動で起動させた場合は、<ter>_kill, <ter>_restart, Ctrl + C, Ctrl + Break で
-        //     本ボットを停止させた場合であれば、 棒読みちゃん も自動で停止)
+        //  (* 自動で起動させた場合は、本ボットの停止と共に 棒読みちゃん も自動で停止)
         "autoRunKillPath": "C:\\Users\\youru\\Documents\\SoftwareWithoutInstaller\\BouyomiChan_0_1_11_0_Beta21\\BouyomiChan.exe",
         //
         // 使用するローカル(本ボットを動かすPC)HTTPサーバ (localhost) のポート番号
@@ -503,7 +503,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 - [棒読みちゃん](https://chi.usamimi.info/Program/Application/BouyomiChan/) の変更と確認
     - バージョンを `Ver0.1.11.0 Beta21` に更新
     - 例えば [【読み上げ】棒読みちゃん連携](https://onecomme.com/docs/feature/bouyomichan/) を参考に、基本設定の `01)ローカルHTTPサーバ機能を使う` の設定値を `True` に変更し、 `02)ポート番号` の設定値を記憶
-        - エラーメッセージが表示されるようになった場合は、 `02)ポート番号` の初期設定値である `50080` を `49152` ～ `65535` の中の別の数字に変更するか、以下を参考に問題を解消
+        - エラーメッセージが表示されるようになった場合は、 `02)ポート番号` の初期設定値である `50080` を `49152` ～ `65535` の間の別の整数値に変更するか、以下を参考に問題を解消
             - [棒読みちゃんの起動失敗時にパソコンの再起動をせず対応する手順](https://yo2.site/index.php/2020/03/04/post-1663/)
             - [棒読みちゃんβ21でエラー「HTTPサーバを開始できませんでした(Port:50080)」が出ます。](https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q14268011994)
 - 本ボットの `config.json5` の設定値の変更
@@ -521,21 +521,21 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 ### 起動
-- .exeファイル版： `run.bat` を実行
-    - `twitch-eventsub-response-py.exe` を直接実行してもよいが、本ボットの再起動機能が動作しない
+- .exeファイル版： `twitch-eventsub-response-py.exe` を実行
 - スクリプト版： Pythonで `./Code/main.py` を実行
+    - ウィンドウを立ち上げたくない場合は、 `main.py` の 変数 `uses_tkinter_window` の値を `True` → `False` に変更すること
 
 .exeファイル版は、Windowsやセキュリティーソフトによりウイルスの疑いありと判定され、初回の起動が妨げられる可能性があります。その場合は、（もちろん本ボットはウイルスではないので）疑いを解除して起動できるようにしてください。
 - .exeファイルはスクリプト版に [PyInstaller](https://pyinstaller.org/en/stable/) を適用して生成しているが、 [PyInstaller](https://pyinstaller.org/en/stable/) を使用して生成した.exeファイルにはよく起こる現象
 
 本ボットはネット通信を行うアプリであるため、初回起動時にファイアーウォールソフトが通信をブロックしようとする可能性があります。その場合は、 **通信を許可してください** 。
 
-正常に起動すると、配信のチャット欄に「 YourBotUserName *bot for \<ter\>\_ has joined and is ready.* 」と表示されます。
+正常に起動すると、配信のチャット欄に「 YourBotUserName *bot for \<ter\>\_ has joined.* 」と表示されます。
 
-また、コンソール（黒い画面）に以下のようなメッセージが表示されます。
+また、本ボットのコンソール模擬ウィンドウ（自作の黒い画面）に以下のようなメッセージが表示されます。
 
 ```
---- Twitch EventSub Response Bot (v3.0.0) ---
+-------------------- Twitch EventSub Response Bot (v3.2.0) --------------------
 [Preprocess]
   JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-vX.Y.Z\config.json5
     parsing this file ... done.
@@ -561,21 +561,28 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
     Bot cogs
       TERRaidCog
       TERTransCog
+        Getting translatable languages lists for GOOGLETRANS ... done.
+        Getting translatable languages lists for DEEPLKEY ... done.
+        Getting language detection function ... done.
       TERBouyomiCog
+        Running "C:\Users\youru\Documents\SoftwareWithoutInstaller\BouyomiChan_0_1_11_0_Beta21\BouyomiChan.exe" ... done.
     Setting bot name color = blue ... done.
   done.
 
 ```
+- `Getting translatable languages lists for GOOGLETRANS ... done.` は、Google翻訳で Google アカウント にひも付いた設定を必要としないものを使用する設定にしている場合に表示
+- `Getting translatable languages lists for DEEPLKEY ... done.` は、DeepL翻訳で認証キーを使用する設定にしている場合に表示
+- `Running "C:\Users\youru\Documents\SoftwareWithoutInstaller\BouyomiChan_0_1_11_0_Beta21\BouyomiChan.exe" ... done.` は、本ボット起動時に自動で [棒読みちゃん](https://chi.usamimi.info/Program/Application/BouyomiChan/) も起動させる設定にしている場合に表示
 
 
 
 ### 動作中であるかの確認
 配信のチャット欄に「 `<ter>_test` 」と入力すると、「 YourBotUserName *bot for \<ter\>\_ is alive.* 」と表示されます。
 
-また、コンソール（黒い画面）に以下のようなメッセージが表示されます。
+また、本ボットのコンソール模擬ウィンドウ（自作の黒い画面）に以下のようなメッセージが表示されます。
 
 ```
-  Testing bot (v3.0.0) ...
+  Testing bot (v3.2.0) ...
     Channel name = yourchannelname
     Bot user ID = 888888888
     Bot user name = yourbotusername
@@ -595,28 +602,19 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 
-### 再起動
-.exeファイル版で `run.bat` を実行して本ボットを起動していた場合、配信のチャット欄に「 `<ter>_restart` 」または「 `<ter>_kill 3` 」と入力すると、配信のチャット欄に「 YourBotUserName *bot for \<ter\>\_ has stopped.* 」と表示されたあと、本ボットが再起動します。
-- チャンネルの配信者またはボットとして使用するユーザーのみが実行可能
-
-
-
 ### 停止
 - 直接停止させる方法
-    - .exeファイル版：コンソール（黒い画面）を閉鎖
-        - この方法で停止させた場合、.exeファイルと同じフォルダー内に `_MEIxxxxxx` （ `xxxxxx` の部分は数字）フォルダーが残されることあり
-            - このフォルダーは、本ボットが起動していない状態であればいつでも削除可能
+    - .exeファイル版：本ボットのコンソール模擬ウィンドウ（自作の黒い画面）を閉鎖
     - スクリプト版：実行中の `./Code/main.py` スクリプトを停止
-- 配信のチャット欄から停止させる方法：チャット欄に「 `<ter>_kill` 」または「 `<ter>_kill (0から255の整数値)` 」と入力
-    - **こちらをお勧め**
+        - 場合によっては、本ボットのコンソール模擬ウィンドウ（自作の黒い画面）を閉鎖する必要もあり
+- 配信のチャット欄から停止させる方法：チャット欄に「 `<ter>_kill` 」または「 `<ter>_kill (0から255の間の整数値(ただし、3以外))` 」と入力
     - チャンネルの配信者またはボットとして使用するユーザーのみが実行可能
     - チャット欄に「 YourBotUserName *bot for \<ter\>\_ has stopped.* 」と表示
-    - `(0から255の整数値)` を入力した場合、本アプリのリターンコードに設定
+    - `(0から255の間の整数値(ただし、3以外))` を入力した場合、本アプリのリターンコードに設定
         - 入力しなかった場合、 リターンコードは `0`
-        - `3` を入力した場合、 `restart-flag.txt` という空のファイルが生成
-            - .exeファイル版で `run.bat` を実行して本ボットを起動していた場合、本ボットが再起動
+        - `3` を入力した場合、本ボットが [再起動](#再起動)（下記）
 
-例えば、配信のチャット欄に `<ter>_kill 222` と入力した場合は、コンソール（黒い画面）に以下のようなメッセージが表示されます。
+例えば、配信のチャット欄に `<ter>_kill 222` と入力した場合は、本ボットのコンソール模擬ウィンドウ（自作の黒い画面）に以下のようなメッセージが表示されます。
 
 ```
   Killing bot ...
@@ -625,17 +623,57 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 [Postprocess]
   Return code = 222
+  Killing BouyomiChan ... done.
 
--------------------------------------------
+-------------------------------------------------------------------------------
 ```
+- `Killing BouyomiChan ... done.` は、本ボット起動時に自動で [棒読みちゃん](https://chi.usamimi.info/Program/Application/BouyomiChan/) も起動させている場合に表示
+
+
+
+### 再起動
+配信のチャット欄に「 `<ter>_restart` 」または「 `<ter>_kill 3` 」と入力すると、配信のチャット欄に「 YourBotUserName *bot for \<ter\>\_ has stopped.* 」と表示されたあと、本ボットが再起動します。
+- チャンネルの配信者またはボットとして使用するユーザーのみが実行可能
+
+また、本ボットのコンソール模擬ウィンドウ（自作の黒い画面）に以下のようなメッセージが表示されます。
+
+```
+  Killing bot ...
+    Return code = 3 (Restart)
+  done.
+
+[Postprocess]
+  Return code = 3 (Restart)
+  Killing BouyomiChan ... done.
+
+-------------------------------------------------------------------------------
+
+Restart after 4 s.
+
+```
+- `Killing BouyomiChan ... done.` は、本ボット起動時に自動で [棒読みちゃん](https://chi.usamimi.info/Program/Application/BouyomiChan/) も起動させている場合に表示
+
+
+
+### 異常中断
+何らかの異常により本ボットの動作が中断し、動作が再開されない場合は、以下の手順を実施したあと、本ボットを再度 [起動](#起動) してください。
+1. 上記の [停止](#停止) に書かれている方法で本ボットを停止
+1. 使用しているならば [棒読みちゃん](https://chi.usamimi.info/Program/Application/BouyomiChan/) も停止
+1. `config.json5` の設定値の確認
+1. 使用PCがインターネットにつながっているかの確認
+
+ただし、上記の1.の方法で本ボットを停止させても、一部の機能が停止されずに（バックグラウンドで）動き続けている場合があります。その場合は、お手数ですが、以下の対応を行ってください。
+- タスク マネージャー（アクティビティモニタ）などから、該当するものを強制終了
+- .exeファイル版は、.exeファイルと同じフォルダー内に `_MEIxxxxxx` （ `xxxxxx` の部分は数字）フォルダーが残されていることがあるので、その場合は削除
+    - このフォルダーは、 **本ボットが起動していない状態であればいつでも削除可能**
+        - 削除できなければ、本ボットの一部機能が未停止
+- どうしても一部の機能が動き続けている場合は、使用PCの再起動
 
 
 
 
 ## アンインストール方法
 `README.pdf` が格納されているフォルダーを削除してください。
-- .exeファイル版には、 `README.pdf` と同じフォルダー内に `_MEIxxxxxx` （ `xxxxxx` の部分は数字）フォルダーが生成されることあり
-    - このフォルダーは、本ボットが起動していない状態であればいつでも削除可能
 
 
 
@@ -652,6 +690,14 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 ## バージョン履歴
+2023-04-16 (v3.2.0)
+- コンソール模擬ウィンドウ（自作の黒い画面）の導入
+- .exeファイル版に `run.bat` を同こんしないように
+    - 今後は `twitch-eventsub-response-py.exe` を直接実行
+- 正常起動すると配信のチャット欄に表示されるメッセージを「 YourBotUserName *bot for \<ter\>\_ has joined and is ready.* 」 → 「 YourBotUserName *bot for \<ter\>\_ has joined.* 」に変更
+- 停止時に 棒読みちゃん も自動で停止させるケースの拡充
+
+
 2023-04-15 (v3.1.0)
 - 本ボットの停止時に 棒読みちゃん も自動で停止させるケースの拡充
 
@@ -747,4 +793,4 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 
 ### .exeファイルの生成方法
-`PyInstaller` フォルダーをカレントディレクトリにして、 `pyinstaller --clean --onefile --runtime-tmpdir=. --name twitch-eventsub-response-py ../Codes/main.py` をする。
+`PyInstaller` フォルダーをカレントディレクトリにして、 `pyinstaller --clean --onefile --noconsole --runtime-tmpdir=. --name twitch-eventsub-response-py ../Codes/main.py` をする。
