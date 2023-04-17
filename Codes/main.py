@@ -37,7 +37,7 @@ def main(_uses_tkinter_window: bool, ) -> int:
             None, window.TkinterConsoleWindow.open, ver_no
         )
         while window.TkinterConsoleWindow.is_aleady_opened() is False:
-            time.sleep(1.0)
+            time.sleep(1.0 / 64.0)
         sys.stdout = window.TkinterConsoleWindow
         sys.stderr = window.TkinterConsoleWindow
     #

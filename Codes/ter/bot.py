@@ -68,13 +68,13 @@ class TERBot(commands.Bot):
             )
         )
         self.add_cog(
-            TERTransCog(
-                self.__token, pu, self.__j['translation'], [], self.__prefix,
+            TERBouyomiCog(
+                self.__token, pu, self.__j['bouyomiChan'], [], self.__prefix,
             )
         )
         self.add_cog(
-            TERBouyomiCog(
-                self.__token, pu, self.__j['bouyomiChan'], [], self.__prefix,
+            TERTransCog(
+                self.__token, pu, self.__j['translation'], [], self.__prefix,
             )
         )
         #

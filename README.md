@@ -1,4 +1,4 @@
-最終更新日：2023-04-16 (v3.2.0)
+最終更新日：2023-04-17 (v3.2.1)
 
 # Twitch EventSub Response Bot (twitch-eventsub-response-py)
 [Twitch](https://www.twitch.tv/) で配信中にレイドを受けたときに、それに応答して自動で「 `/shoutout レイド元のユーザー名` 」Twitch公式チャットコマンドの実行や、チャット欄に指定したメッセージを表示してくれる、ボットアプリです。
@@ -535,7 +535,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、本ボットのコンソール模擬ウィンドウ（自作の黒い画面）に以下のようなメッセージが表示されます。
 
 ```
--------------------- Twitch EventSub Response Bot (v3.2.0) --------------------
+-------------------- Twitch EventSub Response Bot (v3.2.1) --------------------
 [Preprocess]
   JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-vX.Y.Z\config.json5
     parsing this file ... done.
@@ -560,12 +560,12 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
       <ter>_test
     Bot cogs
       TERRaidCog
+      TERBouyomiCog
+        Running "C:\Users\youru\Documents\SoftwareWithoutInstaller\BouyomiChan_0_1_11_0_Beta21\BouyomiChan.exe" ... done.
       TERTransCog
         Getting translatable languages lists for GOOGLETRANS ... done.
         Getting translatable languages lists for DEEPLKEY ... done.
         Getting language detection function ... done.
-      TERBouyomiCog
-        Running "C:\Users\youru\Documents\SoftwareWithoutInstaller\BouyomiChan_0_1_11_0_Beta21\BouyomiChan.exe" ... done.
     Setting bot name color = blue ... done.
   done.
 
@@ -582,7 +582,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、本ボットのコンソール模擬ウィンドウ（自作の黒い画面）に以下のようなメッセージが表示されます。
 
 ```
-  Testing bot (v3.2.0) ...
+  Testing bot (v3.2.1) ...
     Channel name = yourchannelname
     Bot user ID = 888888888
     Bot user name = yourbotusername
@@ -592,8 +592,8 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
       <ter>_test
     Bot cogs
       TERRaidCog
-      TERTransCog
       TERBouyomiCog
+      TERTransCog
   done.
 
 ```
@@ -690,6 +690,12 @@ Restart after 4 s.
 
 
 ## バージョン履歴
+2023-04-16 (v3.2.1)
+- チャットメッセージ発生時の処理順を 棒読みちゃん → 翻訳 に(したつもり)
+- コンソール模擬ウィンドウ（自作の黒い画面）の起動待機間隔を 1秒 → 1/64秒 単位に
+    - (Windowsの標準のタイマーの分解能は 1/64秒 間隔らしい)
+
+
 2023-04-16 (v3.2.0)
 - コンソール模擬ウィンドウ（自作の黒い画面）の導入
 - .exeファイル版に `run.bat` を同こんしないように
