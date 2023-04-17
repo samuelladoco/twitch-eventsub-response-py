@@ -1,4 +1,4 @@
-最終更新日：2023-04-17 (v3.2.1)
+最終更新日：2023-04-17 (v3.2.2)
 
 # Twitch EventSub Response Bot (twitch-eventsub-response-py)
 [Twitch](https://www.twitch.tv/) で配信中にレイドを受けたときに、それに応答して自動で「 `/shoutout レイド元のユーザー名` 」Twitch公式チャットコマンドの実行や、チャット欄に指定したメッセージを表示してくれる、ボットアプリです。
@@ -535,7 +535,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、本ボットのコンソール模擬ウィンドウ（自作の黒い画面）に以下のようなメッセージが表示されます。
 
 ```
--------------------- Twitch EventSub Response Bot (v3.2.1) --------------------
+-------------------- Twitch EventSub Response Bot (v3.2.2) --------------------
 [Preprocess]
   JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-vX.Y.Z\config.json5
     parsing this file ... done.
@@ -582,7 +582,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、本ボットのコンソール模擬ウィンドウ（自作の黒い画面）に以下のようなメッセージが表示されます。
 
 ```
-  Testing bot (v3.2.1) ...
+  Testing bot (v3.2.2) ...
     Channel name = yourchannelname
     Bot user ID = 888888888
     Bot user name = yourbotusername
@@ -690,6 +690,10 @@ Restart after 4 s.
 
 
 ## バージョン履歴
+2023-04-17 (v3.2.2)
+- 棒読みちゃん の連携をしていない状態で、終了時にエラーがでるケースを修正
+
+
 2023-04-17 (v3.2.1)
 - チャットメッセージ発生時の処理順を 棒読みちゃん → 翻訳 に(したつもり)
 - コンソール模擬ウィンドウ（自作の黒い画面）の起動待機間隔を 1秒 → 1/64秒 単位に

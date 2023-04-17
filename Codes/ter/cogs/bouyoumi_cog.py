@@ -28,6 +28,8 @@ class TERBouyomiCog(TERBaseCog):
         #
         # セッション
         self.__session: aiohttp.ClientSession | None = _pu._http.session
+        # 棒読みちゃん プロセス
+        self.__p: subprocess.Popen | None = None
         #
         #
         # 設定値
@@ -52,7 +54,6 @@ class TERBouyomiCog(TERBaseCog):
         # ポート番号
         self.__port_no: int = int(self.__settings_replaced['portNo'])
         #
-        self.__p: subprocess.Popen | None = None
         if self.__auto_run_kill_path is not None:
             try:
                 print(
