@@ -1,6 +1,7 @@
 # Import
 # -----------------------------------------------------------------------------
 from __future__ import annotations
+
 import asyncio
 import os
 import pathlib
@@ -8,12 +9,10 @@ import signal
 import sys
 import time
 from typing import Any
-#
+
 import ter
 import util
 import window
-# -----------------------------------------------------------------------------
-
 
 # Constants
 # -----------------------------------------------------------------------------
@@ -21,13 +20,14 @@ ver_no: str = ter.__version__.casefold().strip()
 uses_tkinter_window: bool = True
 return_code_for_restrt: int = 3
 sleep_before_restart_s: int = 4
-# -----------------------------------------------------------------------------
 
 
 # Main
 # -----------------------------------------------------------------------------
 # ----------------------------------------------------------------------
-def main(_uses_tkinter_window: bool, ) -> int:
+def main(
+    _uses_tkinter_window: bool,
+) -> int:
     if (
         _uses_tkinter_window is True
         and window.TkinterConsoleWindow.is_aleady_opened() is False
@@ -38,45 +38,54 @@ def main(_uses_tkinter_window: bool, ) -> int:
         )
         while window.TkinterConsoleWindow.is_aleady_opened() is False:
             time.sleep(1.0 / 64.0)
-        sys.stdout = window.TkinterConsoleWindow
-        sys.stderr = window.TkinterConsoleWindow
+        sys.stdout = window.TkinterConsoleWindow  # type: ignore
+        sys.stderr = window.TkinterConsoleWindow  # type: ignore
     #
     title: str = (
-        f'-------------------- Twitch EventSub Response Bot (v{ver_no}) --------------------'
+        f"-" * 20 + f" Twitch EventSub Response Bot (v{ver_no}) " + f"-" * 20
     )
-    print(f'{title}')
+    print(f"{title}")
     #
-    print(f'[Preprocess]')
+    print(f"[Preprocess]")
     base_dir: pathlib.Path = pathlib.Path(
-        rf'{os.path.abspath(os.path.dirname(sys.argv[0]))}'
+        rf"{os.path.abspath(os.path.dirname(sys.argv[0]))}"
     )
     #
-    cj_file: pathlib.Path = base_dir.joinpath('config.json5')
-    print(f'  JSON5 file path = {cj_file}')
-    print(f'    parsing this file ... ', end='', )
+    cj_file: pathlib.Path = base_dir.joinpath("config.json5")
+    print(f"  JSON5 file path = {cj_file}")
+    print(
+        f"    parsing this file ... ",
+        end="",
+    )
     cj_obj: dict[str, Any] = util.JSON5Reader.open_and_load(cj_file)
-    cj_obj['verNo'] = ver_no
-    cj_obj['returnCodeForRestrt'] = return_code_for_restrt
-    print(f'done.')
-    print(f'')
+    cj_obj["verNo"] = ver_no
+    cj_obj["returnCodeForRestrt"] = return_code_for_restrt
+    print(f"done.")
+    print(f"")
     #
-    print(f'[Activation of Bot]')
+    print(f"[Activation of Bot]")
     b: ter.TERBot = ter.TERBot(cj_obj)
-    #
-    def __post_process(_b: ter.TERBot, _title: str, ) -> None:
+
+    def __post_process(
+        _b: ter.TERBot,
+        _title: str,
+    ) -> None:
         signal.signal(signal.SIGBREAK, signal.SIG_IGN)
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
         #
-        print(f'[Postprocess]')
-        print(f'  Return code = {_b.return_code}', end='', )
+        print(f"[Postprocess]")
+        print(
+            f"  Return code = {_b.return_code}",
+            end="",
+        )
         if _b.return_code == return_code_for_restrt:
-            print(f' (Restart)')
+            print(f" (Restart)")
         else:
-            print(f'')
+            print(f"")
         _b.kill_bouyomi_process()
-        print(f'')
-        print(f'-' * len(_title))
+        print(f"")
+        print(f"-" * len(_title))
         #
         if _b.return_code != return_code_for_restrt:
             window.TkinterConsoleWindow.lets_thread_close_window = True
@@ -84,15 +93,21 @@ def main(_uses_tkinter_window: bool, ) -> int:
         signal.signal(signal.SIGBREAK, signal.SIG_DFL)
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
-    #
-    print(f'[Run of Bot]')
+
+    print(f"[Run of Bot]")
     signal.signal(
         signal.SIGBREAK,
-        lambda *_: __post_process(b, title, )
+        lambda *_: __post_process(
+            b,
+            title,
+        ),
     )
     signal.signal(
         signal.SIGTERM,
-        lambda *_: __post_process(b, title, )
+        lambda *_: __post_process(
+            b,
+            title,
+        ),
     )
     try:
         if _uses_tkinter_window is True:
@@ -101,13 +116,15 @@ def main(_uses_tkinter_window: bool, ) -> int:
             )
         b.run()
     finally:
-        __post_process(b, title, )
+        __post_process(
+            b,
+            title,
+        )
     return b.return_code
-# ----------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------
-if __name__ == '__main__':
+if __name__ == "__main__":
     return_code_main: int = 0
     #
     while True:
@@ -115,13 +132,11 @@ if __name__ == '__main__':
         return_code_main = main(uses_tkinter_window)
         #
         if return_code_main == return_code_for_restrt:
-            print(f'')
-            print(f'Restart after {sleep_before_restart_s} s.')
-            print(f'')
+            print(f"")
+            print(f"Restart after {sleep_before_restart_s} s.")
+            print(f"")
             time.sleep(float(sleep_before_restart_s))
         else:
             break
     #
     sys.exit(return_code_main)
-# ----------------------------------------------------------------------
-# -----------------------------------------------------------------------------

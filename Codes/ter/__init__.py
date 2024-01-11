@@ -1,5 +1,3 @@
-__version__ = "3.2.2"
+__version__ = "3.3.0"
 
-from .bot import (
-    TERBot,
-)
+from .bot import TERBot

@@ -1,4 +1,4 @@
-最終更新日：2023-04-17 (v3.2.2)
+最終更新日：2024-01-11 (v3.3.0)
 
 # Twitch EventSub Response Bot (twitch-eventsub-response-py)
 [Twitch](https://www.twitch.tv/) で配信中にレイドを受けたときに、それに応答して自動で「 `/shoutout レイド元のユーザー名` 」Twitch公式チャットコマンドの実行や、チャット欄に指定したメッセージを表示してくれる、ボットアプリです。
@@ -66,6 +66,12 @@ Twitch配信のチャット欄に指定したメッセージを自動で表示�
 | レイドを受けたとき | `/shoutout レイド元のユーザー名` | レイド元のユーザーのチャンネルを応援し、フォローボタン付きでチャット内で紹介する |
 | レイドを受けたとき | `（任意のメッセージ）` | 「 `（任意のメッセージ）` 」 を表示させる（ これを利用して、 **ユーザーコマンドも実行可能** ） |
 
+そのほか、以下の機能も備えています。
+- チャットメッセージの翻訳機能（v.2.0以降）
+- チャットメッセージの [棒読みちゃん](https://chi.usamimi.info/Program/Application/BouyomiChan/) への受け渡し機能（v3.0.0以降）
+
+なお、各機能は、メイン機能も含めて、個別にオン・オフが設定できます。
+
 
 
 
@@ -77,7 +83,7 @@ Twitch配信のチャット欄に指定したメッセージを自動で表示�
 
 
 ## ダウンロードとインストールの方法
-- .exeファイル版：右にある Releases → 最新版の `twitch-eventsub-response-py-vX.Y.Z.zip` ファイルをダウンロードして展開
+- .exeファイル版：右上にある [Releases](https://github.com/samuelladoco/twitch-eventsub-response-py/releases) → 最新版の `twitch-eventsub-response-py-vX.Y.Z.zip` ファイルをダウンロードして展開
     - `X.Y.Z` の部分は数字
 - スクリプト版：右のReleasesからソースコードをダウンロードするなり本リポジトリーをクローンするなりし、必要な外部パッケージをインストールしたうえで、Pythonインタプリタを使って実行
     - 必要な外部パッケージは `./Venvs/requirements.txt` に記載
@@ -253,12 +259,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
             //     これらの言語を設定する場合は両方の略称を併記するのがよい)
             //  DeepL翻訳(認証キー使用, 不使用), Google翻訳すべてで利用可能な言語たち
             //      "BG" (Bulgarian), "CS" (Czech), "DA" (Danish),
-            //      "DE" (German), "EL" (Greek), "EN" (English), "ES" (Spanish),
-            //      "ET" (Estonian), "FI" (Finnish), "FR" (French),
-            //      "HU" (Hungarian), "IT" (Italian), "JA" (Japanese),
-            //      "LT" (Lithuanian), "LV" (Latvian), "NL" (Dutch),
-            //      "PL" (Polish), "PT" (Portuguese), "RO" (Romanian),
-            //      "RU" (Russian), "SK" (Slovak), "SL" (Slovenian),
+(中略)
             //      "SV" (Swedish),
             //  DeepL翻訳(認証キー使用), Google翻訳で利用可能な言語たち
             //      "ID" (Indonesian), "KO" (Korean), "TR" (Turkish),
@@ -271,34 +272,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
             //          (* Google翻訳では "no" )
             //  Google翻訳でのみ利用可能な言語たち
             //      "af" (afrikaans), "sq" (albanian), "am" (amharic),
-            //      "ar" (arabic), "hy" (armenian), "az" (azerbaijani),
-            //      "eu" (basque), "be" (belarusian), "bn" (bengali),
-            //      "bs" (bosnian), "ca" (catalan), "ceb" (cebuano),
-            //      "ny" (chichewa),
-            //      "zh-cn" (chinese (simplified)), "zh-tw" (chinese (traditional)),
-            //          (* DeepL翻訳(認証キー使用, 不使用)では "ZH" )
-            //      "co" (corsican), "hr" (croatian), "eo" (esperanto),
-            //      "tl" (filipino), "fy" (frisian), "gl" (galician),
-            //      "ka" (georgian), "gu" (gujarati), "ht" (haitian creole),
-            //      "ha" (hausa), "haw" (hawaiian), "iw" (hebrew),
-            //      "he" (hebrew), "hi" (hindi), "hmn" (hmong),
-            //      "is" (icelandic), "ig" (igbo), "ga" (irish),
-            //      "jw" (javanese), "kn" (kannada), "kk" (kazakh),
-            //      "km" (khmer), "ku" (kurdish (kurmanji)), "ky" (kyrgyz),
-            //      "lo" (lao), "la" (latin), "lb" (luxembourgish),
-            //      "mk" (macedonian), "mg" (malagasy), "ms" (malay),
-            //      "ml" (malayalam), "mt" (maltese), "mi" (maori),
-            //      "mr" (marathi), "mn" (mongolian), "my" (myanmar (burmese)),
-            //      "ne" (nepali),
-            //      "no" (norwegian),
-            //          (* DeepL翻訳(認証キー使用)では "NB" )
-            //      "or" (odia), "ps" (pashto), "fa" (persian), "pa" (punjabi),
-            //      "sm" (samoan), "gd" (scots gaelic), "sr" (serbian),
-            //      "st" (sesotho), "sn" (shona), "sd" (sindhi),
-            //      "si" (sinhala), "so" (somali), "su" (sundanese),
-            //      "sw" (swahili), "tg" (tajik), "ta" (tamil), "te" (telugu),
-            //      "th" (thai), "ur" (urdu), "ug" (uyghur), "uz" (uzbek),
-            //      "vi" (vietnamese), "cy" (welsh), "xh" (xhosa),
+(中略)
             //      "yi" (yiddish), "yo" (yoruba), "zu" (zulu),
             //      (* ほかにもあるが、本ボットでは未対応)
             "fromLanguages": ["", ],
@@ -316,10 +290,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
         //     これらの言語を設定する場合は両方の略称を併記するのがよい)
         //  DeepL翻訳(認証キー使用, 不使用), Google翻訳すべてで利用可能な言語たち
         //      "BG" (Bulgarian), "CS" (Czech), "DA" (Danish), "DE" (German),
-        //      "EL" (Greek), "ES" (Spanish), "ET" (Estonian), "FI" (Finnish),
-        //      "FR" (French), "HU" (Hungarian), "IT" (Italian),
-        //      "JA" (Japanese), "LT" (Lithuanian), "LV" (Latvian),
-        //      "NL" (Dutch), "PL" (Polish), "RO" (Romanian), "RU" (Russian),
+(中略)
         //      "SK" (Slovak), "SL" (Slovenian), "SV" (Swedish),
         //  DeepL翻訳(認証キー使用), Google翻訳で利用可能な言語たち
         //      "ID" (Indonesian), "KO" (Korean), "TR" (Turkish),
@@ -335,37 +306,12 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
         //  DeepL翻訳(認証キー使用)でのみ利用可能な言語たち
         //      "EN-GB" (English (British)), "EN-US" (English (American)),
         //          (* DeepL翻訳(認証キー不使用), Google翻訳では "en" )
-        //      "NB" (Norwegian),
-        //          (* Google翻訳では "no" )
+(中略)
         //      "PT-BR" (Portuguese (Brazilian)), "PT-PT" (Portuguese (European)),
         //          (* DeepL翻訳(認証キー不使用), Google翻訳では "pt")
         //  Google翻訳でのみ利用可能な言語たち
         //      "af" (afrikaans), "sq" (albanian), "am" (amharic),
-        //      "ar" (arabic), "hy" (armenian), "az" (azerbaijani),
-        //      "eu" (basque), "be" (belarusian), "bn" (bengali),
-        //      "bs" (bosnian), "ca" (catalan), "ceb" (cebuano),
-        //      "ny" (chichewa),
-        //      "zh-cn" (chinese (simplified)), "zh-tw" (chinese (traditional)),
-        //          (* DeepL翻訳(認証キー使用, 不使用)では "ZH" )
-        //      "co" (corsican), "hr" (croatian), "eo" (esperanto),
-        //      "tl" (filipino), "fy" (frisian), "gl" (galician),
-        //      "ka" (georgian), "gu" (gujarati), "ht" (haitian creole),
-        //      "ha" (hausa), "haw" (hawaiian), "iw" (hebrew), "he" (hebrew),
-        //      "hi" (hindi), "hmn" (hmong), "is" (icelandic), "ig" (igbo),
-        //      "ga" (irish), "jw" (javanese), "kn" (kannada), "kk" (kazakh),
-        //      "km" (khmer), "ku" (kurdish (kurmanji)), "ky" (kyrgyz),
-        //      "lo" (lao), "la" (latin), "lb" (luxembourgish),
-        //      "mk" (macedonian), "mg" (malagasy), "ms" (malay),
-        //      "ml" (malayalam), "mt" (maltese), "mi" (maori), "mr" (marathi),
-        //      "mn" (mongolian), "my" (myanmar (burmese)), "ne" (nepali),
-        //      "no" (norwegian),
-        //          (* DeepL翻訳(認証キー使用)では "NB" )
-        //      "or" (odia), "ps" (pashto), "fa" (persian), "pa" (punjabi),
-        //      "sm" (samoan), "gd" (scots gaelic), "sr" (serbian),
-        //      "st" (sesotho), "sn" (shona), "sd" (sindhi), "si" (sinhala),
-        //      "so" (somali), "su" (sundanese), "sw" (swahili), "tg" (tajik),
-        //      "ta" (tamil), "te" (telugu), "th" (thai), "ur" (urdu),
-        //      "ug" (uyghur), "uz" (uzbek), "vi" (vietnamese), "cy" (welsh),
+(中略)
         //      "xh" (xhosa), "yi" (yiddish), "yo" (yoruba), "zu" (zulu),
         //      (* ほかにもあるが、本ボットでは未対応)
         "toLanguages": {
@@ -492,10 +438,11 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
     - 例： `湯` → `hot water (JA > EN)` vs. `zh > 湯` → `スープ (ZH > JA)`
 - `(メッセージ) > (翻訳先言語)` ：メッセージを何語に翻訳するかを指定
     - 例： `こんばんは` → `good evening (JA > EN)` vs. `こんばんは > fr` → `Bonne soirée (JA > FR)`
-- `(翻訳サービス名) = (メッセージ)`：翻訳サービスを指定
-    - 例： `deepltranslate = とりま` → `anyhow (JA > EN)` vs. `googletrans = とりま` → `Torima (ja > en)`
+- `(翻訳サービス名) ~ (メッセージ)` ：翻訳サービスを指定
+    - 例： `deepltranslate ~ とりま` → `anyhow (JA > EN)` vs. `googletrans ~ とりま` → `Torima (ja > en)`
+- `trnslt ^ (メッセージ)` ： `config.json5` の設定により翻訳しないルールに該当するメッセージであっても強制的に翻訳
 
-上記のオプションは、 `(翻訳サービス名) = (翻訳元言語) > (メッセージ) > (翻訳先言語)` などと、組み合わせて使用もできます。
+上記のオプションは、 `trnslt ^ (翻訳サービス名) ~ (翻訳元言語) > (メッセージ) > (翻訳先言語)` などと、組み合わせて使用もできます。
 
 
 #### 棒読みちゃん連携機能の設定
@@ -509,6 +456,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 - 本ボットの `config.json5` の設定値の変更
     - `"sendsMessages"` の設定値を `false` → `true` に変更
     - `"portNo"` の設定値を、上記の `02)ポート番号` の設定値に変更
+
 
 
 
@@ -535,9 +483,9 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、本ボットのコンソール模擬ウィンドウ（自作の黒い画面）に以下のようなメッセージが表示されます。
 
 ```
--------------------- Twitch EventSub Response Bot (v3.2.2) --------------------
+-------------------- Twitch EventSub Response Bot (v3.3.0) --------------------
 [Preprocess]
-  JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-vX.Y.Z\config.json5
+  JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-v3.3.0\config.json5
     parsing this file ... done.
 
 [Activation of Bot]
@@ -560,19 +508,21 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
       <ter>_test
     Bot cogs
       TERRaidCog
+        [5, '!raided {{raidBroadcasterUserName}}']
+        [10, '/shoutout']
       TERBouyomiCog
-        Running "C:\Users\youru\Documents\SoftwareWithoutInstaller\BouyomiChan_0_1_11_0_Beta21\BouyomiChan.exe" ... done.
       TERTransCog
-        Getting translatable languages lists for GOOGLETRANS ... done.
-        Getting translatable languages lists for DEEPLKEY ... done.
+        Services
+          DEEPLTRANSLATE
+          GOOGLETRANS
+            Getting instance ... done.
         Getting language detection function ... done.
     Setting bot name color = blue ... done.
   done.
 
 ```
-- `Getting translatable languages lists for GOOGLETRANS ... done.` は、Google翻訳で Google アカウント にひも付いた設定を必要としないものを使用する設定にしている場合に表示
-- `Getting translatable languages lists for DEEPLKEY ... done.` は、DeepL翻訳で認証キーを使用する設定にしている場合に表示
 - `Running "C:\Users\youru\Documents\SoftwareWithoutInstaller\BouyomiChan_0_1_11_0_Beta21\BouyomiChan.exe" ... done.` は、本ボット起動時に自動で [棒読みちゃん](https://chi.usamimi.info/Program/Application/BouyomiChan/) も起動させる設定にしている場合に表示
+- `Services` は、対応する翻訳サービスを使用する設定にしている場合に表示
 
 
 
@@ -582,7 +532,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、本ボットのコンソール模擬ウィンドウ（自作の黒い画面）に以下のようなメッセージが表示されます。
 
 ```
-  Testing bot (v3.2.2) ...
+  Testing bot (v3.3.0) ...
     Channel name = yourchannelname
     Bot user ID = 888888888
     Bot user name = yourbotusername
@@ -623,7 +573,6 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 
 [Postprocess]
   Return code = 222
-  Killing BouyomiChan ... done.
 
 -------------------------------------------------------------------------------
 ```
@@ -690,14 +639,20 @@ Restart after 4 s.
 
 
 ## バージョン履歴
+2024-01-11 (v3.3.0)
+- `trnslt ^ (メッセージ)` で `config.json5` の設定により翻訳しないルールに該当するメッセージであっても強制的に翻訳できるオプションを追加
+- 翻訳サービスの指定方法を `(翻訳サービス名) = (メッセージ)` → `(翻訳サービス名) ~ (メッセージ)` に変更
+- コンソール模擬ウィンドウ（自作の黒い画面）に出力されるメッセージを変更
+
+
 2023-04-17 (v3.2.2)
 - 棒読みちゃん の連携をしていない状態で、終了時にエラーがでるケースを修正
 
 
 2023-04-17 (v3.2.1)
-- チャットメッセージ発生時の処理順を 棒読みちゃん → 翻訳 に(したつもり)
+- チャットメッセージ発生時の処理順を 棒読みちゃん → 翻訳 に（したつもり）
 - コンソール模擬ウィンドウ（自作の黒い画面）の起動待機間隔を 1秒 → 1/64秒 単位に
-    - (Windowsの標準のタイマーの分解能は 1/64秒 間隔らしい)
+    - （Windowsの標準のタイマーの分解能は 1/64秒 間隔らしい）
 
 
 2023-04-16 (v3.2.0)
@@ -793,14 +748,3 @@ Restart after 4 s.
     - [【読み上げ】棒読みちゃん連携](https://onecomme.com/docs/feature/bouyomichan/)
     - [棒読みちゃんの起動失敗時にパソコンの再起動をせず対応する手順](https://yo2.site/index.php/2020/03/04/post-1663/)
     - [棒読みちゃんβ21でエラー「HTTPサーバを開始できませんでした(Port:50080)」が出ます。](https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q14268011994)
-
-
-
-
-## 本ボット作者用の備忘録
-本ボットの作者は忘れっぽいので、以下は自分用の備忘録です。
-
-
-
-### .exeファイルの生成方法
-`PyInstaller` フォルダーをカレントディレクトリにして、 `pyinstaller --clean --onefile --noconsole --runtime-tmpdir=. --name twitch-eventsub-response-py ../Codes/main.py` をする。
