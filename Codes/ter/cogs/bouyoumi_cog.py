@@ -1,5 +1,4 @@
 # Import
-# -----------------------------------------------------------------------------
 from __future__ import annotations
 
 import pathlib
@@ -14,8 +13,6 @@ from .base_cog import TERBaseCog
 
 
 # Classes
-# -----------------------------------------------------------------------------
-# ----------------------------------------------------------------------
 class TERBouyomiCog(TERBaseCog):
     def __init__(
         self,
@@ -25,12 +22,7 @@ class TERBouyomiCog(TERBaseCog):
         _response_cms_base: list[list[Any]],
         _prefix: str,
     ) -> None:
-        super().__init__(
-            _token,
-            _pu,
-            _settings_base,
-            _response_cms_base,
-        )
+        super().__init__(_token, _pu, _settings_base, _response_cms_base)
         #
         #
         # セッション
@@ -41,7 +33,7 @@ class TERBouyomiCog(TERBaseCog):
         #
         # 設定値
         self.__settings_replaced: dict[str, Any] = self.get_settings_replaced(
-            {},
+            {}
         )
         #
         #
@@ -68,14 +60,15 @@ class TERBouyomiCog(TERBaseCog):
                     end="",
                 )
                 self.__p = subprocess.Popen(self.__auto_run_kill_path)
-                print(f"done.")
+                print("done.")
             except (OSError, subprocess.CalledProcessError) as e:
-                print(f"failed")
+                print("failed")
                 print(f"          {e}")
         #
         #
         # 受け渡すメッセージたちに対する制限
-        #   送信ユーザーのユーザー名ないし表示名の、末尾の数字部分を省略するか否か
+        #   送信ユーザーのユーザー名ないし表示名の、
+        #   末尾の数字部分を省略するか否か
         self.__ignores_sender_name_suffix_num: bool = bool(
             self.__settings_replaced["limitsWhenPassing"][
                 "ignoresSenderNameSuffixNum"
@@ -126,7 +119,7 @@ class TERBouyomiCog(TERBaseCog):
             self.__settings_replaced["messagesFormat"]
         ).strip()
 
-    @commands.Cog.event(event="event_message")  # type: ignore
+    @commands.Cog.event(event="event_message")
     async def message_response(self, message: Message) -> None:
         # (受け渡さない 1/3)
         #   セッションがない
@@ -160,14 +153,14 @@ class TERBouyomiCog(TERBaseCog):
             ).split("/")
             for emote_id_positions in emote_id_positions_col:
                 id_and_positions: list[str] = emote_id_positions.split(":")
-                assert (
-                    len(id_and_positions) == 2
-                ), f"Emote ID & positions are {id_and_positions}."
+                assert len(id_and_positions) == 2, (
+                    f"Emote ID & positions are {id_and_positions}."
+                )
                 first_position: str = id_and_positions[1].split(",")[0]
                 from_and_to: list[str] = first_position.split("-")
-                assert (
-                    len(from_and_to) == 2
-                ), f"1st position of {id_and_positions[0]} is {from_and_to}."
+                assert len(from_and_to) == 2, (
+                    f"1st position of {id_and_positions[0]} is {from_and_to}."
+                )
                 # (* メッセージ(各種削除前のもの)からエモート名を特定)
                 if message.content is not None:
                     emote_names.append(
@@ -216,7 +209,8 @@ class TERBouyomiCog(TERBaseCog):
         #   メッセージ送信者が翻訳しないユーザー名たちの中に含まれている
         if sender_user_name in self.__sender_user_names_to_ignore:
             return
-        #   メッセージの接頭辞が翻訳しないユーザーコマンドの接頭辞たちの中に含まれている
+        #   メッセージの接頭辞が
+        #   翻訳しないユーザーコマンドの接頭辞たちの中に含まれている
         for (
             user_command_prefix_to_ignore
         ) in self.__user_command_prefixes_to_ignore:
@@ -230,7 +224,9 @@ class TERBouyomiCog(TERBaseCog):
         #
         # 送信ユーザーのユーザー名ないし表示名に対する制限を適用
         if self.__ignores_sender_name_suffix_num is True:
-            sender_user_name = sender_user_name.rstrip("0123456789０１２３４５６７８９")
+            sender_user_name = sender_user_name.rstrip(
+                "0123456789０１２３４５６７８９"
+            )
             sender_display_name = sender_display_name.rstrip(
                 "0123456789０１２３４５６７８９"
             )
@@ -269,13 +265,10 @@ class TERBouyomiCog(TERBaseCog):
         except Exception as e:
             print(f'  Passing "{m}" to BouyomiChan failed.')
             print(f"    {e}")
-            print(f"")
+            print("")
 
     def kill_process(self) -> None:
         if self.__p is not None and self.__p.poll() is None:
-            print(
-                f"  Killing BouyomiChan ... ",
-                end="",
-            )
+            print("  Killing BouyomiChan ... ", end="")
             self.__p.kill()
-            print(f"done.")
+            print("done.")

@@ -1,5 +1,4 @@
 # Import
-# -----------------------------------------------------------------------------
 from __future__ import annotations
 
 import json
@@ -19,8 +18,6 @@ from .base_cog import TERBaseCog
 
 
 # Classes
-# -----------------------------------------------------------------------------
-# ----------------------------------------------------------------------
 class TERTransCog(TERBaseCog):
     def __init__(
         self,
@@ -30,17 +27,12 @@ class TERTransCog(TERBaseCog):
         _response_cms_base: list[list[Any]],
         _prefix: str,
     ) -> None:
-        super().__init__(
-            _token,
-            _pu,
-            _settings_base,
-            _response_cms_base,
-        )
+        super().__init__(_token, _pu, _settings_base, _response_cms_base)
         #
         #
         # 設定値
         self.__settings_replaced: dict[str, Any] = self.get_settings_replaced(
-            {},
+            {}
         )
         #
         #
@@ -52,10 +44,10 @@ class TERTransCog(TERBaseCog):
         #   翻訳サービスたち
         self.__translator_d_trans: deepl.Translator | None = None
         self.__translator_g_trans: googletrans.Translator | None = None
-        self.__translator_g_session_url: tuple[
-            aiohttp.ClientSession, str
-        ] | None = None
-        print(f"        Services")
+        self.__translator_g_session_url: (
+            tuple[aiohttp.ClientSession, str] | None
+        ) = None
+        print("        Services")
         for service_with_key_or_url in self.__settings_replaced[
             "servicesWithKeyOrURL"
         ]:
@@ -71,23 +63,20 @@ class TERTransCog(TERBaseCog):
             if tts is TERTransService.DEEPLKEY:
                 try:
                     print(f"          {tts.name}")
-                    print(
-                        f"            Getting instance ... ",
-                        end="",
-                    )
+                    print("            Getting instance ... ", end="")
                     self.__translator_d_trans = deepl.Translator(key_or_url)
                     # 対応言語文字列たちは小文字で持つことにする(以下、同様)
                     self.__from_langs_all[tts] = [
-                        (l.code).casefold().strip()
-                        for l in self.__translator_d_trans.get_source_languages()
+                        (g.code).casefold().strip()
+                        for g in self.__translator_d_trans.get_source_languages()
                     ]
                     self.__to_langs_all[tts] = [
-                        (l.code).casefold().strip()
-                        for l in self.__translator_d_trans.get_target_languages()
+                        (g.code).casefold().strip()
+                        for g in self.__translator_d_trans.get_target_languages()
                     ]
-                    print(f"done.")
+                    print("done.")
                 except deepl.exceptions.AuthorizationException as e:
-                    print(f"failed.")
+                    print("failed.")
                     print(f"          {e}")
                     continue
             # DeepL Translate
@@ -105,10 +94,7 @@ class TERTransCog(TERBaseCog):
             elif tts is TERTransService.GOOGLETRANS:
                 try:
                     print(f"          {tts.name}")
-                    print(
-                        f"            Getting instance ... ",
-                        end="",
-                    )
+                    print("            Getting instance ... ", end="")
                     self.__translator_g_trans = googletrans.Translator(
                         service_urls=[
                             key_or_url,
@@ -123,9 +109,9 @@ class TERTransCog(TERBaseCog):
                         k.casefold().strip()
                         for k in googletrans.LANGUAGES.keys()
                     ]
-                    print(f"done.")
+                    print("done.")
                 except Exception as e:
-                    print(f"failed.")
+                    print("failed.")
                     print(f"          {e}")
                     continue
             # Google Apps Script (GAS)
@@ -152,19 +138,16 @@ class TERTransCog(TERBaseCog):
         # 翻訳元言語の推定に使うための googleTrans
         self.__translator_g_detection: googletrans.Translator | None = None
         try:
-            print(
-                f"        Getting language detection function ... ",
-                end="",
-            )
+            print("        Getting language detection function ... ", end="")
             self.__translator_g_detection = googletrans.Translator(
                 service_urls=[
                     self.__settings_replaced["fromLanguageDetection"],
                 ],
                 raise_exception=True,
             )
-            print(f"done.")
+            print("done.")
         except Exception as e:
-            print(f"failed.")
+            print("failed.")
             print(f"          {e}")
         #
         #
@@ -232,7 +215,7 @@ class TERTransCog(TERBaseCog):
             self.__settings_replaced["messagesFormat"]
         ).strip()
 
-    @commands.Cog.event(event="event_message")  # type: ignore
+    @commands.Cog.event(event="event_message")
     async def message_response(self, message: Message) -> None:
         # (翻訳しない 1/6)
         #   翻訳サービスが全く設定されていない
@@ -267,14 +250,14 @@ class TERTransCog(TERBaseCog):
             ).split("/")
             for emote_id_positions in emote_id_positions_col:
                 id_and_positions: list[str] = emote_id_positions.split(":")
-                assert (
-                    len(id_and_positions) == 2
-                ), f"Emote ID & positions are {id_and_positions}."
+                assert len(id_and_positions) == 2, (
+                    f"Emote ID & positions are {id_and_positions}."
+                )
                 first_position: str = id_and_positions[1].split(",")[0]
                 from_and_to: list[str] = first_position.split("-")
-                assert (
-                    len(from_and_to) == 2
-                ), f"1st position of {id_and_positions[0]} is {from_and_to}."
+                assert len(from_and_to) == 2, (
+                    f"1st position of {id_and_positions[0]} is {from_and_to}."
+                )
                 # (* メッセージ(各種削除前のもの)からエモート名を特定)
                 if message.content is not None:
                     emote_names.append(
@@ -335,7 +318,8 @@ class TERTransCog(TERBaseCog):
             and forces_translation is False
         ):
             return
-        #   メッセージの接頭辞が翻訳しないユーザーコマンドの接頭辞たちの中に含まれている
+        #   メッセージの接頭辞が翻訳しないユーザーコマンドの接頭辞たちの中に
+        #   含まれている
         for (
             user_command_prefix_to_ignore
         ) in self.__user_command_prefixes_to_ignore:
@@ -399,11 +383,11 @@ class TERTransCog(TERBaseCog):
                         index_service = i
                         break
                 # ない場合は、現在のサービスを維持する
-            #   独自で日本語, 中国語(簡体字), 中国語(繁体字)であるかそれ以外かを推定
+            #   独自で日本語, 中国語(簡体字), 中国語(繁体字)であるか
+            #   それ以外の言語であるかを推定
             if lang_from is None:
                 lang_from = TERLang.detect_cj(
-                    text_from_wo_langs,
-                    services[index_service],
+                    text_from_wo_langs, services[index_service]
                 )
             #   googleTrans を利用して推定
             if lang_from is None and self.__translator_g_detection is not None:
@@ -419,10 +403,10 @@ class TERTransCog(TERBaseCog):
                     )
                     # 対応言語を、現在のサービス～最後のサービスから探す
                     for i in range(index_service, len(services)):
-                        # googleTrans と現在のサービスとで言語名が違う場合は変換
+                        # googleTrans と現在のサービスとで
+                        # 言語名が違う場合は変換
                         lang_from_converted: str = TERLang.convert_from(
-                            lang_from_g_detection,
-                            services[i],
+                            lang_from_g_detection, services[i]
                         )
                         if (
                             lang_from_converted
@@ -434,10 +418,11 @@ class TERTransCog(TERBaseCog):
                     # ない場合は、現在のサービスを維持する
                 except Exception as e:
                     print(
-                        f'  Language detection of "{text_from_w_force_service_langs}" failed.'
+                        "  Language detection of "
+                        + f'"{text_from_w_force_service_langs}" failed.'
                     )
                     print(f"    {e}")
-                    print(f"")
+                    print("")
             #
             # (翻訳しない 4/6) メッセージが翻訳しない言語たちのいずれかである
             if (
@@ -516,9 +501,10 @@ class TERTransCog(TERBaseCog):
             if is_translatable is False:
                 print(
                     f"  {services[index_service]} cannot translate "
-                    + f'"{text_from_w_force_service_langs}" from {lang_from} to {lang_to}.'
+                    + f'"{text_from_w_force_service_langs}" '
+                    + f"from {lang_from} to {lang_to}."
                 )
-                print(f"")
+                print("")
                 index_service += 1
                 continue
             #
@@ -526,21 +512,21 @@ class TERTransCog(TERBaseCog):
             try:
                 # DeepL Python Library
                 if services[index_service] is TERTransService.DEEPLKEY:
-                    assert (
-                        self.__translator_d_trans is not None
-                    ), f"{services[index_service]} is not available."
+                    assert self.__translator_d_trans is not None, (
+                        f"{services[index_service]} is not available."
+                    )
                     if lang_from is not None:
                         lang_from = lang_from.upper()
                     lang_to = lang_to.upper()
                     #
-                    r_or_rs: deepl.TextResult | list[
-                        deepl.TextResult
-                    ] = self.__translator_d_trans.translate_text(
-                        text_from_wo_langs,
-                        source_lang=lang_from,
-                        target_lang=lang_to,
-                        split_sentences=deepl.SplitSentences.NO_NEWLINES,
-                        outline_detection=False,
+                    r_or_rs: deepl.TextResult | list[deepl.TextResult] = (
+                        self.__translator_d_trans.translate_text(
+                            text_from_wo_langs,
+                            source_lang=lang_from,
+                            target_lang=lang_to,
+                            split_sentences=deepl.SplitSentences.NO_NEWLINES,
+                            outline_detection=False,
+                        )
                     )
                     if type(r_or_rs) is deepl.TextResult:
                         text_to = r_or_rs.text
@@ -558,15 +544,15 @@ class TERTransCog(TERBaseCog):
                             .strip()
                         )
                     else:
-                        assert (
-                            False
-                        ), f"{r_or_rs}([0]) is not deepl.TextResult."
+                        assert False, (
+                            f"{r_or_rs}([0]) is not deepl.TextResult."
+                        )
                     break
                 # DeepL Translate
                 elif services[index_service] is TERTransService.DEEPLTRANSLATE:
-                    assert (
-                        lang_from is not None
-                    ), f"{services[index_service]} is not available."
+                    assert lang_from is not None, (
+                        f"{services[index_service]} is not available."
+                    )
                     lang_from = lang_from.upper()
                     lang_to = lang_to.upper()
                     text_to = str(
@@ -577,9 +563,9 @@ class TERTransCog(TERBaseCog):
                     break
                 # Googletrans
                 elif services[index_service] is TERTransService.GOOGLETRANS:
-                    assert (
-                        self.__translator_g_trans is not None
-                    ), f"{services[index_service]} is not available."
+                    assert self.__translator_g_trans is not None, (
+                        f"{services[index_service]} is not available."
+                    )
                     r: googletrans.models.Translated = (
                         self.__translator_g_trans.translate(
                             text_from_wo_langs,
@@ -592,9 +578,9 @@ class TERTransCog(TERBaseCog):
                     break
                 # Google Apps Script (GAS)
                 elif services[index_service] is TERTransService.GOOGLEGAS:
-                    assert (
-                        self.__translator_g_session_url is not None
-                    ), f"{services[index_service]} is not available."
+                    assert self.__translator_g_session_url is not None, (
+                        f"{services[index_service]} is not available."
+                    )
                     p: str = f"text={text_from_wo_langs}"
                     if lang_from is not None:
                         p += f"&source={lang_from}"
@@ -615,9 +601,9 @@ class TERTransCog(TERBaseCog):
                             )
                     break
                 else:
-                    assert (
-                        False
-                    ), f"Translation service is {services[index_service]}."
+                    assert False, (
+                        f"Translation service is {services[index_service]}."
+                    )
             except Exception as e:
                 services_to_be_removed.append(services[index_service])
                 print(
@@ -625,7 +611,7 @@ class TERTransCog(TERBaseCog):
                     + f"by {services[index_service]} failed."
                 )
                 print(f"    {e}")
-                print(f"")
+                print("")
             #
             index_service += 1
         #

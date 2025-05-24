@@ -1,5 +1,4 @@
 # Import
-# -----------------------------------------------------------------------------
 from __future__ import annotations
 
 from typing import Any
@@ -11,10 +10,8 @@ from .base_cog import TERBaseCog, TERCommandMessageUnit
 
 
 # Classes
-# -----------------------------------------------------------------------------
-# ----------------------------------------------------------------------
 class TERRaidCog(TERBaseCog):
-    @commands.Cog.event(event="event_raw_usernotice")  # type: ignore
+    @commands.Cog.event(event="event_raw_usernotice")
     async def raid_response(
         self, channel: Channel, tags: dict[Any, Any]
     ) -> None:
@@ -23,7 +20,7 @@ class TERRaidCog(TERBaseCog):
             return
         #
         #
-        print(f"  Responding to raid ...")
+        print("  Responding to raid ...")
         raid_broadcaster_user_name: str = tags.get("msg-param-login", "")
         print(f"    Raid broadcaster user name = {raid_broadcaster_user_name}")
         #
@@ -37,10 +34,8 @@ class TERRaidCog(TERBaseCog):
             # '{{????}}': '????',
         }
         #   置換後のコマンドやメッセージたち
-        cm_units_replaced: list[
-            TERCommandMessageUnit
-        ] = self.get_cm_units_replaced(
-            replacements,
+        cm_units_replaced: list[TERCommandMessageUnit] = (
+            self.get_cm_units_replaced(replacements)
         )
         #
         #
@@ -53,27 +48,25 @@ class TERRaidCog(TERBaseCog):
                     tags.get("user-id", -1)
                 )
                 print(
-                    f"    Shoutout broadcaster user ID = "
+                    "    Shoutout broadcaster user ID = "
                     + f"{shoutout_broadcaster_user_id}"
                 )
                 if shoutout_broadcaster_user_id == "-1":
-                    print(f"      * Invalid ID")
+                    print("      * Invalid ID")
                     continue
                 else:
                     cm_unit.extend_args_replaced(
-                        [shoutout_broadcaster_user_id],
+                        [shoutout_broadcaster_user_id]
                     )
             #
-            # ToDo: ★ (コマンド) 別のコマンドにも対応する場合は、追加の引数取得をここに実装する
+            # ToDo: ★ (コマンド)
+            #   別のコマンドにも対応する場合は、追加の引数取得をここに実装する
             # elif cm_unit.cm_replaced == '/????':
             #     pass
             else:
                 pass
             cm_units_valid.append(cm_unit)
         #
-        await self.execute_cms(
-            channel,
-            cm_units_valid,
-        )
-        print(f"  done.")
-        print(f"")
+        await self.execute_cms(channel, cm_units_valid)
+        print("  done.")
+        print("")

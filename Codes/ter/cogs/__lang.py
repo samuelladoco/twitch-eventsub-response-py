@@ -1,5 +1,4 @@
 # Import
-# -----------------------------------------------------------------------------
 from __future__ import annotations
 
 import enum
@@ -11,8 +10,6 @@ import regex
 
 
 # Classes
-# -----------------------------------------------------------------------------
-# ----------------------------------------------------------------------
 @enum.unique
 class TERTransService(enum.Enum):
     DEEPLKEY = enum.auto()
@@ -28,7 +25,6 @@ class TERTransService(enum.Enum):
         return None
 
 
-# ----------------------------------------------------------------------
 class TERLang:
     __JAPANESE_KANJIS_SEQUENCE_1ST: ClassVar[str] = (
         "一丁七万丈三上下不与丑且世丘丙丞両並中串丸丹主乃久之乍乎乏乗乙九乞也乱乳乾亀"
@@ -111,9 +107,9 @@ class TERLang:
         "鳴鳶鴇鴎鴛鴨鴫鴬鴻鵜鵠鵡鵬鶏鶴鷲鷹鷺鹸鹿麓麗麟麦麹麺麻麿黄黍黒黙黛鼎鼓鼠鼻齢"
         "龍"
     )
-    __JAPANESE_KANJIS_SEQUENCE_2ND_JOYO: ClassVar[
-        str
-    ] = "丼傲刹哺喩嗅嘲彙恣惧慄憬拉摯曖楷毀璧瘍箋籠緻羞訃諧貪踪辣錮鬱"
+    __JAPANESE_KANJIS_SEQUENCE_2ND_JOYO: ClassVar[str] = (
+        "丼傲刹哺喩嗅嘲彙恣惧慄憬拉摯曖楷毀璧瘍箋籠緻羞訃諧貪踪辣錮鬱"
+    )
     __JAPANESE_KANJIS_SEQUENCE_3RD_JOYO: ClassVar[str] = "頰塡剝𠮟"
     __p_ja_kana: ClassVar[regex.Pattern[str]] = regex.compile(
         r"[\p{Script=Hiragana}\p{Script=Katakana}]"
@@ -485,37 +481,28 @@ class TERLang:
     #
     __lang_from_converters: ClassVar[dict[TERTransService, dict[str, str]]] = {
         TERTransService.DEEPLKEY: {
-            str(googletrans.LANGCODES["norwegian"])  # type: ignore
+            str(googletrans.LANGCODES["norwegian"])
             .casefold()
-            .strip(): deepl.Language.NORWEGIAN.casefold()
-            .strip(),
-            str(googletrans.LANGCODES["chinese (simplified)"])  # type: ignore
+            .strip(): deepl.Language.NORWEGIAN.casefold().strip(),
+            str(googletrans.LANGCODES["chinese (simplified)"])
             .casefold()
-            .strip(): deepl.Language.CHINESE.casefold()
-            .strip(),
-            str(googletrans.LANGCODES["chinese (traditional)"])  # type: ignore
+            .strip(): deepl.Language.CHINESE.casefold().strip(),
+            str(googletrans.LANGCODES["chinese (traditional)"])
             .casefold()
-            .strip(): deepl.Language.CHINESE.casefold()
-            .strip(),
+            .strip(): deepl.Language.CHINESE.casefold().strip(),
         },
         TERTransService.DEEPLTRANSLATE: {
-            str(googletrans.LANGCODES["chinese (simplified)"])  # type: ignore
+            str(googletrans.LANGCODES["chinese (simplified)"])
             .casefold()
-            .strip(): deepl.Language.CHINESE.casefold()
-            .strip(),
-            str(googletrans.LANGCODES["chinese (traditional)"])  # type: ignore
+            .strip(): deepl.Language.CHINESE.casefold().strip(),
+            str(googletrans.LANGCODES["chinese (traditional)"])
             .casefold()
-            .strip(): deepl.Language.CHINESE.casefold()
-            .strip(),
+            .strip(): deepl.Language.CHINESE.casefold().strip(),
         },
     }
 
     @classmethod
-    def detect_cj(
-        cls,
-        _text: str,
-        _service: TERTransService,
-    ) -> str | None:
+    def detect_cj(cls, _text: str, _service: TERTransService) -> str | None:
         if _service in [
             TERTransService.DEEPLKEY,
             TERTransService.DEEPLTRANSLATE,
@@ -534,39 +521,29 @@ class TERLang:
         ]:
             if cls.__p_ja_kana.search(_text) is not None:
                 return (
-                    str(googletrans.LANGCODES["japanese"])  # type: ignore
-                    .casefold()
-                    .strip()
+                    str(googletrans.LANGCODES["japanese"]).casefold().strip()
                 )
             elif cls.__p_zh_s.search(_text) is not None:
                 return (
-                    str(
-                        googletrans.LANGCODES["chinese (simplified)"]  # type: ignore
-                    )
+                    str(googletrans.LANGCODES["chinese (simplified)"])
                     .casefold()
                     .strip()
                 )
             elif cls.__p_zh_t.search(_text) is not None:
                 return (
-                    str(
-                        googletrans.LANGCODES["chinese (traditional)"]  # type: ignore
-                    )
+                    str(googletrans.LANGCODES["chinese (traditional)"])
                     .casefold()
                     .strip()
                 )
             elif cls.__p_zh_all.search(_text) is not None:
                 return (
-                    str(
-                        googletrans.LANGCODES["chinese (simplified)"]  # type: ignore
-                    )
+                    str(googletrans.LANGCODES["chinese (simplified)"])
                     .casefold()
                     .strip()
                 )
             elif cls.__p_ja_kanji.search(_text) is not None:
                 return (
-                    str(googletrans.LANGCODES["japanese"])  # type: ignore
-                    .casefold()
-                    .strip()
+                    str(googletrans.LANGCODES["japanese"]).casefold().strip()
                 )
             else:
                 return None
@@ -575,9 +552,7 @@ class TERLang:
 
     @classmethod
     def convert_from(
-        cls,
-        _lang_from_g_detection: str,
-        _service: TERTransService,
+        cls, _lang_from_g_detection: str, _service: TERTransService
     ) -> str:
         return cls.__lang_from_converters.get(_service, {}).get(
             _lang_from_g_detection, _lang_from_g_detection
