@@ -1,4 +1,4 @@
-最終更新日：2024-01-11 (v3.3.0)
+最終更新日：2025-05-26 (v3.3.1)
 
 # Twitch EventSub Response Bot (twitch-eventsub-response-py)
 [Twitch](https://www.twitch.tv/) で配信中にレイドを受けたときに、それに応答して自動で「 `/shoutout レイド元のユーザー名` 」Twitch公式チャットコマンドの実行や、チャット欄に指定したメッセージを表示してくれる、ボットアプリです。
@@ -224,7 +224,8 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
         //  (* 各メッセージについて、翻訳できるまで、上に設定したサービスから順に使用)
         "servicesWithKeyOrURL": [
             // DeepL翻訳で、認証キーを使用しない場合 (* 不具合がなければ変更不要)
-            ["deeplTranslate", "https://www2.deepl.com/jsonrpc", ],
+            //  エラーが出て翻訳されない場合が多いため、コメントアウト中
+            // ["deeplTranslate", "https://www2.deepl.com/jsonrpc", ],
             //
             // Google翻訳で、 Google アカウント にひも付いた設定を必要としない場合
             //  "translate.google.????/"
@@ -350,7 +351,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
         //
         // 使用するローカル(本ボットを動かすPC)HTTPサーバ (localhost) のポート番号
         //  (* 棒読みちゃん での設定値 (49152～65535) に合わせること)
-        "portNo": 50080,
+        "portNo": 60080,
         //
         // 受け渡すメッセージたちに対する制限
         "limitsWhenPassing": {
@@ -428,21 +429,22 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 `    // ■ メッセージたちに対する翻訳に関する設定` 以降にある箇所を、やりたいことに応じて変更して、上書き保存してください。なお、初期設定のままでも、上記の [必須の設定](#必須の設定) を行っていれば、チャット翻訳機能は動作します。
 
 - 初期設定以外のチャット翻訳サービスを使用したい場合：
-    - DeepL翻訳で、認証キーを使用する場合： [DeepL翻訳の無料版APIキーの登録発行手順！世界一のAI翻訳サービスをAPI利用](https://auto-worker.com/blog/?p=5030) などを参考にして、キーを取得して入力したのち、行頭の `//` を削除（アンコメント）
-    - Google翻訳で、 Google Apps Script (GAS) を使用する場合： [Google翻訳APIを無料で作る方法](https://qiita.com/satto_sann/items/be4177360a0bc3691fdf) などを参考にして、翻訳スクリプトを作成・デプロイし、ウェブアプリのURLを取得して入力したのち、行頭の `//` を削除（アンコメント）
+    - DeepL翻訳で、認証キーを使用する場合： [DeepL翻訳の無料版APIキーの登録発行手順！世界一のAI翻訳サービスをAPI利用](https://auto-worker.com/blog/?p=5030) などを参考にして、キーを取得して入力したのち、行の頭の `//` を削除（アンコメント）
+    - Google翻訳で、 Google Apps Script (GAS) を使用する場合： [Google翻訳APIを無料で作る方法](https://qiita.com/satto_sann/items/be4177360a0bc3691fdf) などを参考にして、翻訳スクリプトを作成・デプロイし、ウェブアプリのURLを取得して入力したのち、行の頭の `//` を削除（アンコメント）
         - 翻訳サービスたちの優先使用順に応じて、`[ ]` で囲まれた行の上下を入れ替え
 - チャット翻訳をしたくない場合： `["deeplTranslate", "https://www2.deepl.com/jsonrpc", ]` および `["googleTrans", "translate.google.co.jp", ]` を行ごと削除するか、行の頭に `//` を挿入（コメントアウト）
+    - `["deeplTranslate", "https://www2.deepl.com/jsonrpc", ]` は、 `429 Client Error: Too Many Requests for url: https://www2.deepl.com/jsonrpc` というエラーが出て翻訳されない場合が多いため、初期設定の時点で行の頭に `//` を挿入済み
 
 なお、各メッセージの前後に以下のような指定を付加することで、メッセージ単位で翻訳のされ方を細かく制御できます。
+- `trnslt ^ (メッセージ)` ： `config.json5` の設定により翻訳しないルールに該当するメッセージであっても強制的に翻訳
+- `(翻訳サービス名) ~ (メッセージ)` ：翻訳サービスを指定
+    - 例： `deepltranslate ~ とりま` → `anyhow (JA > EN)` vs. `googletrans ~ とりま` → `Torima (ja > en)`
 - `(翻訳元言語) > (メッセージ)` ：メッセージを何語と認識するかを指定
     - 例： `湯` → `hot water (JA > EN)` vs. `zh > 湯` → `スープ (ZH > JA)`
 - `(メッセージ) > (翻訳先言語)` ：メッセージを何語に翻訳するかを指定
     - 例： `こんばんは` → `good evening (JA > EN)` vs. `こんばんは > fr` → `Bonne soirée (JA > FR)`
-- `(翻訳サービス名) ~ (メッセージ)` ：翻訳サービスを指定
-    - 例： `deepltranslate ~ とりま` → `anyhow (JA > EN)` vs. `googletrans ~ とりま` → `Torima (ja > en)`
-- `trnslt ^ (メッセージ)` ： `config.json5` の設定により翻訳しないルールに該当するメッセージであっても強制的に翻訳
 
-上記のオプションは、 `trnslt ^ (翻訳サービス名) ~ (翻訳元言語) > (メッセージ) > (翻訳先言語)` などと、組み合わせて使用もできます。
+上記のオプションは、記述の順番を守れば、 `trnslt ^ (翻訳サービス名) ~ (翻訳元言語) > (メッセージ) > (翻訳先言語)` などと、組み合わせて使用もできます。
 
 
 #### 棒読みちゃん連携機能の設定
@@ -450,7 +452,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 - [棒読みちゃん](https://chi.usamimi.info/Program/Application/BouyomiChan/) の変更と確認
     - バージョンを `Ver0.1.11.0 Beta21` に更新
     - 例えば [【読み上げ】棒読みちゃん連携](https://onecomme.com/docs/feature/bouyomichan/) を参考に、基本設定の `01)ローカルHTTPサーバ機能を使う` の設定値を `True` に変更し、 `02)ポート番号` の設定値を記憶
-        - エラーメッセージが表示されるようになった場合は、 `02)ポート番号` の初期設定値である `50080` を `49152` ～ `65535` の間の別の整数値に変更するか、以下を参考に問題を解消
+        - エラーメッセージが表示されるようになった場合は、 `02)ポート番号` の初期設定値である `60080` を `49152` ～ `65535` の間の別の整数値に変更するか、以下を参考に問題を解消
             - [棒読みちゃんの起動失敗時にパソコンの再起動をせず対応する手順](https://yo2.site/index.php/2020/03/04/post-1663/)
             - [棒読みちゃんβ21でエラー「HTTPサーバを開始できませんでした(Port:50080)」が出ます。](https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q14268011994)
 - 本ボットの `config.json5` の設定値の変更
@@ -483,9 +485,9 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、本ボットのコンソール模擬ウィンドウ（自作の黒い画面）に以下のようなメッセージが表示されます。
 
 ```
--------------------- Twitch EventSub Response Bot (v3.3.0) --------------------
+-------------------- Twitch EventSub Response Bot (v3.3.1) --------------------
 [Preprocess]
-  JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-v3.3.0\config.json5
+  JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-v3.3.1\config.json5
     parsing this file ... done.
 
 [Activation of Bot]
@@ -513,7 +515,6 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
       TERBouyomiCog
       TERTransCog
         Services
-          DEEPLTRANSLATE
           GOOGLETRANS
             Getting instance ... done.
         Getting language detection function ... done.
@@ -532,7 +533,7 @@ https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp60
 また、本ボットのコンソール模擬ウィンドウ（自作の黒い画面）に以下のようなメッセージが表示されます。
 
 ```
-  Testing bot (v3.3.0) ...
+  Testing bot (v3.3.1) ...
     Channel name = yourchannelname
     Bot user ID = 888888888
     Bot user name = yourbotusername
@@ -639,6 +640,21 @@ Restart after 4 s.
 
 
 ## バージョン履歴
+2025-05-26 (v3.3.1)
+
+※ **もし v3.3.0 で正常動作しているならばバージョンアップは不要**
+- 機能に影響のない変更
+    - `config.json5` の初期設定値の変更
+        - `    // ■ メッセージたちに対する翻訳に関する設定` 以降にある `["deeplTranslate", "https://www2.deepl.com/jsonrpc", ],` の行の頭に `//` を挿入（コメントアウト）
+            - `429 Client Error: Too Many Requests for url: https://www2.deepl.com/jsonrpc` というエラーが出て翻訳されない場合が多いため
+        - `    // ■ メッセージたちの 棒読みちゃん への受け渡しに関する設定` 以降にある `"portNo": 50080,` を `"portNo": 60080,` に変更
+            - 開発環境の Windows 11 のバージョンを 23H2 から 24H2 にアップしたところ、 `50080` 番ポートが別の何かに使用されるようになったため
+    - 使用しているPythonパッケージのアップデート
+        - `googletrans (4.0.0rc1)` とそれが依存しているパッケージを除く
+    - 今後の展開に関連したPythonパッケージの先行導入
+    - プログラムコードのリファクタリング
+
+
 2024-01-11 (v3.3.0)
 - `trnslt ^ (メッセージ)` で `config.json5` の設定により翻訳しないルールに該当するメッセージであっても強制的に翻訳できるオプションを追加
 - 翻訳サービスの指定方法を `(翻訳サービス名) = (メッセージ)` → `(翻訳サービス名) ~ (メッセージ)` に変更

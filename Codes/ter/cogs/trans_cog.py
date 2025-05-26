@@ -297,8 +297,7 @@ class TERTransCog(TERBaseCog):
                 else str(message.author.display_name).strip()
             )
         )
-        # ToDo: ★ trnslt対応　"googletrans ~    "の場合に翻訳しないのも対応？
-        #       メッセージ内に指定があれば従う
+        # 必ず翻訳するか否か
         forces_translation: bool = False
         text_from_w_service_langs: str = text_from_w_force_service_langs
         force_and_text_froms: list[str] = text_from_w_service_langs.split(

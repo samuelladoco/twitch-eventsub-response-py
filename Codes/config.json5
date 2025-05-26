@@ -61,7 +61,8 @@
         //  (* 各メッセージについて、翻訳できるまで、上に設定したサービスから順に使用)
         "servicesWithKeyOrURL": [
             // DeepL翻訳で、認証キーを使用しない場合 (* 不具合がなければ変更不要)
-            ["deeplTranslate", "https://www2.deepl.com/jsonrpc", ],
+            //  エラーが出て翻訳されない場合が多いため、コメントアウト中
+            // ["deeplTranslate", "https://www2.deepl.com/jsonrpc", ],
             //
             // Google翻訳で、 Google アカウント にひも付いた設定を必要としない場合
             //  "translate.google.????/"
@@ -247,7 +248,7 @@
         //
         // 使用するローカル(本ボットを動かすPC)HTTPサーバ (localhost) のポート番号
         //  (* 棒読みちゃん での設定値 (49152～65535) に合わせること)
-        "portNo": 50080,
+        "portNo": 60080,
         //
         // 受け渡すメッセージたちに対する制限
         "limitsWhenPassing": {
