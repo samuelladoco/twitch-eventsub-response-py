@@ -1,4 +1,4 @@
-最終更新日：2025-05-26 (v3.3.1)
+最終更新日：2025-06-07 (v3.3.2)
 
 # Twitch EventSub Response Bot (twitch-eventsub-response-py)
 [Twitch](https://www.twitch.tv/) で配信中にレイドを受けたときに、それに応答して自動で「 `/shoutout レイド元のユーザー名` 」Twitch公式チャットコマンドの実行や、チャット欄に指定したメッセージを表示してくれる、ボットアプリです。
@@ -125,11 +125,11 @@ Twitch配信のチャット欄に指定したメッセージを自動で表示�
 | `（任意のメッセージ）` <br> `/me` | `chat:edit` | チャット欄に投稿できる |
 | （全般） | `chat:read` | チャット欄に接続できる |
 
-さて、トークン文字列を取得するのに外部サービスを利用すると、そのサービスはトークン文字列を知り得てしまうので、要求して承認された権限を悪用できてしまいます。なので、ここから先は **セキュリティー意識に応じてトークン文字列の取得方法を選んでください** 。
+さて、トークン文字列を取得するのに外部サービスを利用すると、そのサービスはトークン文字列を知り得て、要求して承認された権限を悪用できてしまう可能性もあるかもしれません。なので、ここから先は **セキュリティー意識に応じてトークン文字列の取得方法を選んでください** 。
 
 
 #### トークン取得ウェブサービスが **トークン文字列を悪用しないと信じる** 場合
-「Twitch Chat OAuth Password Generator（Twitch Chat OAuth Token Generator）」は、 [チャット翻訳ちゃん](http://www.sayonari.com/trans_asr/trans.html) の公式ページにて、トークン文字列を取得する方法として紹介されているウェブサービスです。ただし、本ボットは [チャット翻訳ちゃん](http://www.sayonari.com/trans_asr/trans.html) とは違う権限を要求するので、同じ方法ではなく、以下の手順でトークン文字列を取得してください。
+「3-2-1 Twitch OAuth Token Generator」は、 トークン文字列の取得を仲介してくれるウェブサービスです。以下の手順でトークン文字列を取得してください。
 
 まず、ブラウザーを開いて、**ボットとして運用するユーザーでTwitchにログインした状態にしてください** 。
 - ボットとして運用するユーザーを別に用意する場合は、配信で使っているユーザーでいったんログアウトしてボットとして運用するユーザーでログインし直すか、ブラウザーのシークレットモードなどと呼ばれる機能を使ってボットとして運用するユーザーでログインしてください
@@ -140,10 +140,10 @@ Twitch配信のチャット欄に指定したメッセージを自動で表示�
 そして、以下のURLをコピーし、ブラウザーにペーストして、URLにアクセスしてください。
 
 ```
-https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp608isickayubi39itsckt&redirect_uri=https://twitchapps.com/tmi/&scope=moderator:manage:shoutouts+user:manage:chat_color+chat:edit+chat:read
+https://id.twitch.tv/oauth2/authorize?client_id=m36dcrvwztjjkqejyikbrd1nlkpeuj&redirect_uri=https%3A%2F%2F321extensions.co.uk%2Ftwitchapps&response_type=token&scope=moderator:manage:shoutouts+user:manage:chat_color+chat:edit+chat:read
 ```
 
-「Twitch Chat OAuth Token Generatorアカウントにアクセスしようとしています」というページが表示されるので、「許可」を選んでください。すると、画面が遷移し、「 **`oauth:9y0urb0tuser0authacceesst0ken9`** 」などという文字列が表示されます。このうち **`oauth:` より右の（おそらく30桁前後となる）文字列** （この例の場合、 `9y0urb0tuser0authacceesst0ken9` ） がトークン文字列になります。
+「321 Oauth Generator wants to access your account」というトップメッセージとその下にTwitchアカウントが表示されたページが出現しますので、そのアカウントがボットとして運用するユーザーであることを確認したうえで、「Authorize」を押してください。すると次の画面に遷移するので、その画面の「Your OAuth Token」の右下の「Show」を押してください。「 **`oauth:9y0urb0tuser0authacceesst0ken9`** 」などという文字列が表示されます。このうち **`oauth:` より右の（おそらく30桁前後となる）文字列** （この例の場合、 `9y0urb0tuser0authacceesst0ken9` ） がトークン文字列になります。次に、隣にある「Copy」を押してください。 `oauth:` を含む文字列がペーストできるようになります。
 
 
 #### トークン取得ウェブサービスがトークン文字列を悪用しないと信じない場合
@@ -640,6 +640,12 @@ Restart after 4 s.
 
 
 ## バージョン履歴
+2025-06-07 (v3.3.2)
+
+※ **もし v3.3.0 や v.3.3.1 で正常動作しているならばバージョンアップは不要**
+- 機能に影響のない変更
+    - `README.pdf` の「トークン取得ウェブサービスが **トークン文字列を悪用しないと信じる** 場合」のトークン取得方法の記述を変更
+
 2025-05-26 (v3.3.1)
 
 ※ **もし v3.3.0 で正常動作しているならばバージョンアップは不要**
