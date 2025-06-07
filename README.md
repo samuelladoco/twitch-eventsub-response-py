@@ -485,9 +485,9 @@ https://id.twitch.tv/oauth2/authorize?client_id=m36dcrvwztjjkqejyikbrd1nlkpeuj&r
 また、本ボットのコンソール模擬ウィンドウ（自作の黒い画面）に以下のようなメッセージが表示されます。
 
 ```
--------------------- Twitch EventSub Response Bot (v3.3.1) --------------------
+-------------------- Twitch EventSub Response Bot (v3.3.2) --------------------
 [Preprocess]
-  JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-v3.3.1\config.json5
+  JSON5 file path = C:\Users\youru\Desktop\twitch-eventsub-response-py-v3.3.2\config.json5
     parsing this file ... done.
 
 [Activation of Bot]
@@ -533,7 +533,7 @@ https://id.twitch.tv/oauth2/authorize?client_id=m36dcrvwztjjkqejyikbrd1nlkpeuj&r
 また、本ボットのコンソール模擬ウィンドウ（自作の黒い画面）に以下のようなメッセージが表示されます。
 
 ```
-  Testing bot (v3.3.1) ...
+  Testing bot (v3.3.2) ...
     Channel name = yourchannelname
     Bot user ID = 888888888
     Bot user name = yourbotusername
@@ -642,7 +642,7 @@ Restart after 4 s.
 ## バージョン履歴
 2025-06-07 (v3.3.2)
 
-※ **もし v3.3.0 や v.3.3.1 で正常動作しているならばバージョンアップは不要**
+※ **もし v3.3.0 や v3.3.1 で正常動作しているならばバージョンアップは不要**
 - 機能に影響のない変更
     - `README.pdf` の「トークン取得ウェブサービスが **トークン文字列を悪用しないと信じる** 場合」のトークン取得方法の記述を変更
 
